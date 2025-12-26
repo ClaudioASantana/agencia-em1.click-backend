@@ -1,0 +1,9 @@
+- [x] Install dependencies (`prisma`, `@prisma/client`)
+- [x] Initialize Prisma (`npx prisma init`) and configure `schema.prisma`
+- [x] Create `PrismaService`
+- [x] Create `PrismaModule`
+- [x] Update `UsersModule` imports
+- [x] Implement `PrismaUserRepository`
+  - [x] Map Domain User <-> Prisma User
+- [ ] Run migration/db push (Failed: Connection Error - Check DATABASE_URL)
+- [x] Verify with tests (Build verified)

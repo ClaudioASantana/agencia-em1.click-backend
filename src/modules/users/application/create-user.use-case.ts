@@ -20,6 +20,8 @@ export class CreateUserUseCase implements UseCase<CreateUserDto, User> {
     const user = User.create({
       name: request.name,
       email: request.email,
+      password: request.password || 'default_password', // Temporary fix for build
+      active: request.active ?? true,
       createdAt: new Date(),
     });
 

@@ -3,6 +3,8 @@ import { Entity } from '../../../domain/entity';
 export interface UserProps {
   name: string;
   email: string;
+  password?: string;
+  active: boolean;
   createdAt: Date;
 }
 
@@ -22,5 +24,13 @@ export class User extends Entity<UserProps> {
 
   get email(): string {
     return this.props.email;
+  }
+
+  get password(): string | undefined {
+    return this.props.password;
+  }
+
+  get active(): boolean {
+    return this.props.active;
   }
 }

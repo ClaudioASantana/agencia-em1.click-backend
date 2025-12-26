@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar(255)
+  email         String    @unique @db.VarChar(255)
+  password_hash String    @db.VarChar(255)
+  active        Boolean?  @default(true)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model encarte_estabelecimentos {
+  encarte_id         Int
+  estabelecimento_id Int
+  encartes           encartes         @relation(fields: [encarte_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  estabelecimentos   estabelecimentos @relation(fields: [estabelecimento_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([encarte_id, estabelecimento_id])
+}
+
+model encartes {
+  id                       Int                        @id @default(autoincrement())
+  titulo                   String                     @db.VarChar(255)
+  descricao                String?
+  data_validade            DateTime?                  @db.Date
+  imagem_capa_url          String?                    @db.VarChar(500)
+  localidade_id            Int?
+  created_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  encarte_estabelecimentos encarte_estabelecimentos[]
+  localidades              localidades?               @relation(fields: [localidade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([localidade_id], map: "idx_encartes_localidade")
+}
+
+model especialidades {
+  id                 Int               @id @default(autoincrement())
+  nome               String            @db.VarChar(255)
+  estabelecimento_id Int?
+  estabelecimentos   estabelecimentos? @relation(fields: [estabelecimento_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model estabelecimentos {
+  id                       Int                        @id @default(autoincrement())
+  nome                     String                     @db.VarChar(255)
+  descricao                String?
+  logo_url                 String?                    @db.VarChar(500)
+  endereco                 String?                    @db.VarChar(500)
+  telefone                 String?                    @db.VarChar(50)
+  whatsapp                 String?                    @db.VarChar(50)
+  avaliacao_media          Decimal?                   @default(0.00) @db.Decimal(3, 2)
+  total_avaliacoes         Int?                       @default(0)
+  localidade_id            Int?
+  segmento_id              Int?
+  created_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  updated_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  encarte_estabelecimentos encarte_estabelecimentos[]
+  especialidades           especialidades[]
+  localidades              localidades?               @relation(fields: [localidade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  segmentos                segmentos?                 @relation(fields: [segmento_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  redes_sociais            redes_sociais[]
+
+  @@index([localidade_id], map: "idx_estabelecimentos_localidade")
+  @@index([segmento_id], map: "idx_estabelecimentos_segmento")
+}
+
+model localidades {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(255)
+  created_at       DateTime?          @default(now()) @db.Timestamp(6)
+  encartes         encartes[]
+  estabelecimentos estabelecimentos[]
+}
+
+model redes_sociais {
+  id                 Int               @id @default(autoincrement())
+  plataforma         String            @db.VarChar(50)
+  url                String            @db.VarChar(500)
+  estabelecimento_id Int?
+  estabelecimentos   estabelecimentos? @relation(fields: [estabelecimento_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model schema_migrations {
+  version BigInt  @id
+  dirty   Boolean
+}
+
+model segmentos {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(255)
+  icone_url        String?            @db.VarChar(500)
+  created_at       DateTime?          @default(now()) @db.Timestamp(6)
+  estabelecimentos estabelecimentos[]
+}

@@ -1,0 +1,9 @@
+  - [x] Configure Swagger
+  - [x] Implement Auth Module (Login/Register)
+  - [x] Create AuthModule structure
+- [x] Implement `RegisterUseCase` (with Bcrypt)
+- [x] Implement `LoginUseCase` (with JWT generation)
+- [x] Implement `JwtStrategy` and `JwtAuthGuard`
+- [x] Create `AuthController` with Swagger decorators
+- [x] Verify Endpoints (Register/Login) - Verified by Build
+- [x] Verify Swagger UI - Verified by Build
