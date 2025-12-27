@@ -1,0 +1,4 @@
+- [x] Verify `localidades` and `segmentos` tables are populated <!-- id: 0 -->
+- [x] Verify `GET /api/v1/catalog/filters` returns correct JSON structure <!-- id: 1 -->
+- [x] Ensure Frontend `api.getFilters()` correctly maps response to dropdown options <!-- id: 2 -->
+- [x] Validate end-to-end flow from Database -> API -> UI Dropdown <!-- id: 3 -->
