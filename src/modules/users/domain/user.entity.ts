@@ -1,4 +1,4 @@
-import { Entity } from '../../../domain/entity';
+import { Entity } from '../../../shared/domain/entity';
 
 export interface UserProps {
   name: string;

@@ -20,8 +20,8 @@ model User {
 }
 
 model encarte_estabelecimentos {
-  encarte_id         Int
-  estabelecimento_id Int
+  encarte_id         String
+  estabelecimento_id String
   encartes           encartes         @relation(fields: [encarte_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   estabelecimentos   estabelecimentos @relation(fields: [estabelecimento_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -29,12 +29,12 @@ model encarte_estabelecimentos {
 }
 
 model encartes {
-  id                       Int                        @id @default(autoincrement())
+  id                       String                     @id @default(uuid())
   titulo                   String                     @db.VarChar(255)
   descricao                String?
   data_validade            DateTime?                  @db.Date
   imagem_capa_url          String?                    @db.VarChar(500)
-  localidade_id            Int?
+  localidade_id            String?
   created_at               DateTime?                  @default(now()) @db.Timestamp(6)
   encarte_estabelecimentos encarte_estabelecimentos[]
   localidades              localidades?               @relation(fields: [localidade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -43,14 +43,14 @@ model encartes {
 }
 
 model especialidades {
-  id                 Int               @id @default(autoincrement())
+  id                 String            @id @default(uuid())
   nome               String            @db.VarChar(255)
-  estabelecimento_id Int?
+  estabelecimento_id String?
   estabelecimentos   estabelecimentos? @relation(fields: [estabelecimento_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model estabelecimentos {
-  id                       Int                        @id @default(autoincrement())
+  id                       String                     @id @default(uuid())
   nome                     String                     @db.VarChar(255)
   descricao                String?
   logo_url                 String?                    @db.VarChar(500)
@@ -59,8 +59,8 @@ model estabelecimentos {
   whatsapp                 String?                    @db.VarChar(50)
   avaliacao_media          Decimal?                   @default(0.00) @db.Decimal(3, 2)
   total_avaliacoes         Int?                       @default(0)
-  localidade_id            Int?
-  segmento_id              Int?
+  localidade_id            String?
+  segmento_id              String?
   created_at               DateTime?                  @default(now()) @db.Timestamp(6)
   updated_at               DateTime?                  @default(now()) @db.Timestamp(6)
   encarte_estabelecimentos encarte_estabelecimentos[]
@@ -74,7 +74,7 @@ model estabelecimentos {
 }
 
 model localidades {
-  id               Int                @id @default(autoincrement())
+  id               String             @id @default(uuid())
   nome             String             @db.VarChar(255)
   created_at       DateTime?          @default(now()) @db.Timestamp(6)
   encartes         encartes[]
@@ -82,10 +82,10 @@ model localidades {
 }
 
 model redes_sociais {
-  id                 Int               @id @default(autoincrement())
+  id                 String            @id @default(uuid())
   plataforma         String            @db.VarChar(50)
   url                String            @db.VarChar(500)
-  estabelecimento_id Int?
+  estabelecimento_id String?
   estabelecimentos   estabelecimentos? @relation(fields: [estabelecimento_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
@@ -95,7 +95,7 @@ model schema_migrations {
 }
 
 model segmentos {
-  id               Int                @id @default(autoincrement())
+  id               String             @id @default(uuid())
   nome             String             @db.VarChar(255)
   icone_url        String?            @db.VarChar(500)
   created_at       DateTime?          @default(now()) @db.Timestamp(6)

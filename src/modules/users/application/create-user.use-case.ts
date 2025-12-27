@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UseCase } from '../../../application/use-case.interface';
+import { UseCase } from '../../../shared/application/use-case.interface';
 import { CreateUserDto } from './create-user.dto';
 import { User } from '../domain/user.entity';
 import { UserRepository } from '../domain/user.repository';
