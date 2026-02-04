@@ -1,0 +1,17 @@
+- [x] Backend: Database Migration [x]
+  - [x] Add `Follow` model to `schema.prisma`
+  - [x] Run `npx prisma migrate dev`
+- [x] Backend: API Implementation [x]
+  - [x] Create `FollowsModule`, `FollowsController`, and `FollowsService`
+  - [x] Implement follow/unfollow logic
+  - [x] Update `EstablishmentsController` to support `followed` filter
+- [x] Frontend: Service Update [x]
+  - [x] Update `api.ts` with follow/unfollow methods
+  - [x] Fetch followed stores on login in `auth.ts` store
+- [x] Frontend: UI Implementation [x]
+  - [x] Add heart icon/button to `AgencyCard`
+  - [x] Implement toggle filter in home page/filter bar
+  - [x] Add animations for heart interaction (Premium Design)
+- [x] Verification [x]
+  - [x] Verify persistence of follows
+  - [x] Verify filter logic correctly calls API

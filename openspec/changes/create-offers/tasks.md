@@ -1,0 +1,4 @@
+- [ ] Refine `Offer` model in `schema.prisma` (add dates) <!-- id: 0 -->
+- [ ] Generate and apply migration for Offer updates <!-- id: 1 -->
+- [ ] Update `seed.ts` to populate Offers for each Establishment <!-- id: 2 -->
+- [ ] Run seed script <!-- id: 3 -->

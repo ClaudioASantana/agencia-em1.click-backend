@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("STORE_OWNER")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  establishments Establishment[]
+  follows        Follow[]
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  establishments Establishment[]
+}
+
+model Segment {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  establishments Establishment[]
+}
+
+model Establishment {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique // For URL friendly ID
+  name        String
+  description String?  // Optional detailed description
+  image       String?  // Main image
+  logo        String?  // Logo image
+  rating      Float?   @default(0)
+  
+  phone       String?
+  whatsapp    String?
+  address     String?
+  state       String?  // UF (e.g. MG, SP)
+  city        String?  // City Name (e.g. Belo Horizonte)
+  hours       String?
+  specialties String? // Stored as JSON string or text
+  
+  // Social Media
+  instagram   String?
+  facebook    String?
+  website     String?
+  
+  // Geolocation
+  latitude    Float?
+  longitude   Float?
+  
+  // Relations
+  locationId  Int
+  location    Location @relation(fields: [locationId], references: [id])
+  segmentId   Int
+  segment     Segment  @relation(fields: [segmentId], references: [id])
+  offers      Offer[]
+  publications Publication[]
+  users       User[]
+  follows     Follow[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Offer {
+  id              Int           @id @default(autoincrement())
+  title           String
+  slug            String?       // Optional for now to avoid db reset
+  description     String?
+  price           String?       // Storing as string for flexibility (e.g. "R$ 29,90")
+  originalPrice   String?       // New field for "Preço Original"
+  discountPercentage Float?     // New field for "Desconto em %"
+  image           String?
+  active          Boolean       @default(true)
+  highlight       Boolean       @default(false) // New field for "Destaque"
+  startDate       DateTime?
+  endDate         DateTime?
+  
+  establishmentId Int
+  establishment   Establishment @relation(fields: [establishmentId], references: [id])
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  publicationId Int?
+  publication   Publication? @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Publication {
+  id              Int           @id @default(autoincrement())
+  title           String        // e.g. "Natal 2024", "Ofertas da Semana"
+  description     String?
+  status          String        @default("DRAFT") // DRAFT, ACTIVE, PADRAO, ARCHIVED
+  startDate       DateTime?
+  endDate         DateTime?
+
+  priority        String        @default("Média") // Baixa, Média, Alta
+  establishmentId Int
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  
+  offers          Offer[]       @relation("PublicationOffers")
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Follow {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  establishmentId Int
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+
+  @@unique([userId, establishmentId])
+}

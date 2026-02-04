@@ -1,0 +1,5 @@
+- [ ] Architecture: Validate Design with User <!-- id: 0 -->
+- [x] Backend: Setup Auth Module (JWT) <!-- id: 1 -->
+- [x] Backend: Protect "Write" Endpoints <!-- id: 2 -->
+- [ ] Bureau Frontend: Setup Router & Auth Guard <!-- id: 3 -->
+- [ ] Bureau Frontend: Implement Login View <!-- id: 4 -->

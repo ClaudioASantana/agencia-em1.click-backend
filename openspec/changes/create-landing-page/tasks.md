@@ -1,0 +1,7 @@
+- [x] Initialize Vue 3 Project in `vitrine-agencia-em1.click` <!-- type: chore -->
+- [x] Install TailwindCSS and Shadcn Vue (if needed for consistency) <!-- type: chore -->
+- [x] Create Landing Page Layout (Navbar, Hero, Features, Footer) <!-- type: feat -->
+- [x] Implement Hero Section with "WordExpress" style (Clean, Text-heavy but visual) <!-- type: feat -->
+- [x] Implement "Links/Portals" section linking to Frontend and Backend <!-- type: feat -->
+- [x] Add Content (Descriptions of the platform) <!-- type: feat -->
+- [x] Verify Responsive Design <!-- type: test -->

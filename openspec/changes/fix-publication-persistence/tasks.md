@@ -1,0 +1,3 @@
+- [x] Enable `ValidationPipe` in `src/main.ts` <!-- id: 0 -->
+- [x] Verify that saving a publication with a valid `establishmentId` works. <!-- id: 1 -->
+- [x] Verify that saving a publication without `establishmentId` returns a 400 Bad Request. <!-- id: 2 -->

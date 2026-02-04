@@ -1,0 +1,3 @@
+- [ ] Update `schema.prisma` with `Establishment` and `Offer` models <!-- id: 0 -->
+- [ ] Generate and apply migration <!-- id: 1 -->
+- [ ] Update seed script with establishment data <!-- id: 2 -->

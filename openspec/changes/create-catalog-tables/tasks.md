@@ -1,0 +1,3 @@
+- [ ] Update `schema.prisma` with `Location` and `Segment` models <!-- id: 0 -->
+- [ ] Generate and apply migration <!-- id: 1 -->
+- [ ] Seed initial data <!-- id: 2 -->

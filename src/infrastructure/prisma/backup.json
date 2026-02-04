@@ -1,0 +1,353 @@
+{
+  "locations": [
+    {
+      "id": 1,
+      "name": "Belo Horizonte",
+      "createdAt": "2026-01-15T02:06:26.785Z",
+      "updatedAt": "2026-01-15T02:06:26.785Z"
+    },
+    {
+      "id": 2,
+      "name": "São Paulo",
+      "createdAt": "2026-01-15T02:06:27.598Z",
+      "updatedAt": "2026-01-15T02:06:27.598Z"
+    },
+    {
+      "id": 3,
+      "name": "Rio de Janeiro",
+      "createdAt": "2026-01-15T02:06:27.609Z",
+      "updatedAt": "2026-01-15T02:06:27.609Z"
+    },
+    {
+      "id": 4,
+      "name": "Curitiba",
+      "createdAt": "2026-01-15T02:06:27.621Z",
+      "updatedAt": "2026-01-15T02:06:27.621Z"
+    },
+    {
+      "id": 5,
+      "name": "Brasília",
+      "createdAt": "2026-01-15T02:06:27.630Z",
+      "updatedAt": "2026-01-15T02:06:27.630Z"
+    },
+    {
+      "id": 6,
+      "name": "Salvador",
+      "createdAt": "2026-01-15T02:06:27.640Z",
+      "updatedAt": "2026-01-15T02:06:27.640Z"
+    }
+  ],
+  "segments": [
+    {
+      "id": 1,
+      "name": "Roteiro Gastronômico",
+      "createdAt": "2026-01-15T02:06:27.648Z",
+      "updatedAt": "2026-01-15T02:06:27.648Z"
+    },
+    {
+      "id": 2,
+      "name": "Guia Automotivo",
+      "createdAt": "2026-01-15T02:06:27.667Z",
+      "updatedAt": "2026-01-15T02:06:27.667Z"
+    },
+    {
+      "id": 3,
+      "name": "Saúde e Bem Estar",
+      "createdAt": "2026-01-15T02:06:27.676Z",
+      "updatedAt": "2026-01-15T02:06:27.676Z"
+    },
+    {
+      "id": 4,
+      "name": "Moda e Beleza",
+      "createdAt": "2026-01-15T02:06:27.684Z",
+      "updatedAt": "2026-01-15T02:06:27.684Z"
+    },
+    {
+      "id": 5,
+      "name": "Casa Construção e Decoração",
+      "createdAt": "2026-01-15T02:06:27.692Z",
+      "updatedAt": "2026-01-15T02:06:27.692Z"
+    },
+    {
+      "id": 6,
+      "name": "Serviços e Negócios",
+      "createdAt": "2026-01-15T02:06:27.703Z",
+      "updatedAt": "2026-01-15T02:06:27.703Z"
+    }
+  ],
+  "establishments": [
+    {
+      "id": 1,
+      "slug": "casa-de-minas",
+      "name": "Casa de Minas",
+      "description": "O Restaurante Casa de Minas traz o verdadeiro sabor da culinária mineira para o coração da cidade. Com receitas tradicionais passadas de geração em geração, oferecemos uma experiência gastronômica autêntica e acolhedora.",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuB9mC9IHd1Wmor0xb3D7sKtHJEQPgPDgFP2QYO14RE6Ie0xFo9EYtd6r_14MYb1t09KtGzZORbKDJZfAGGwruC-rYpxJtDhbJtEkUDAPxCv-gksbvU1YydbkIu-_K2R6Am1FZ4LR1v39zvwQiws26Twv81zc7gv8rRlxJ7dTNVi4prhN66UBRKomju03NVPyklt9gwt-LacyfVgEvdqqtMrVjmDajTwRm2sBJtootXzzD5DYbbD-1EqCyJ5BBt6ojk3Tx9C2guuFWk2",
+      "logo": "https://lh3.googleusercontent.com/aida-public/AB6AXuDBV1b3V3LE_WDHq_3Csj_XOjowL8HZNsuGBqBXMCQrTW9ER-0Wemm23lGAmc59MJ2nBZasVYtIhgabwfPZuczC8eL95K_Y-h2Q88I_YY_G18KWNZHrdxx_OXQi2LBE_vtuLs7jdFCwoliDgpqWxcj1epVf3zaGqy2EUQI_r0ySQJ5EIN4Gdg-I2lfnWkb8O4qSeOruF4_uBwz4uLPOmq18c1gG4TXI-e3DKibZU6FU0KxbHoHHVjKD9kx6XiXV00d10pR8ZTLaP002",
+      "rating": 4.8,
+      "phone": "(31) 3222-0000",
+      "whatsapp": null,
+      "address": "Rua da Bahia, 1234 - Centro, Belo Horizonte - MG",
+      "hours": "Seg-Sáb: 11h às 23h | Dom: 11h às 17h",
+      "specialties": "[\"Comida Mineira\",\"Feijão Tropeiro\",\"Ambiente Familiar\"]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 1,
+      "segmentId": 1,
+      "createdAt": "2026-01-15T02:06:27.739Z",
+      "updatedAt": "2026-01-15T02:06:27.739Z"
+    },
+    {
+      "id": 2,
+      "slug": "burguer-prime",
+      "name": "Burguer Prime",
+      "description": "Hamburgueria artesanal com blends exclusivos.",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBGlpokAJb_giwYBjQbBCSAO4ewoB2EV1A_Q1UXnB-kpcar1QvmkiS0E0zys8taoSLs0ZzqYO4PRGpPn0bA4_tjl5BlPdBR0Wze0PxdnZiYJkZP4yJxmrPufGBRLlhgtY_rpAM3k297P6jVt02KsSsUs_JGcA1I1pTtAQw5dYGvmd56MKXiu4iSQueuCEoc3frfrgWNntpvsaEOgrbjt1pF1NWsoCzdbMqafyen0gF7a_43aakMWJlG7XA_ho3D-jO_1Talp1-UHjGJ",
+      "logo": "https://picsum.photos/100/100?random=1",
+      "rating": 4.5,
+      "phone": "(11) 9999-9999",
+      "whatsapp": null,
+      "address": "Av. Paulista, 1000 - SP",
+      "hours": "Seg-Dom: 17h às 23h",
+      "specialties": "[\"Hambúrguer Artesanal\",\"Milkshakes\",\"Vegano\"]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 2,
+      "segmentId": 1,
+      "createdAt": "2026-01-15T02:06:27.852Z",
+      "updatedAt": "2026-01-15T02:06:27.852Z"
+    },
+    {
+      "id": 3,
+      "slug": "diroma-confeitaria",
+      "name": "DiRoma Confeitaria",
+      "description": "Referência em doces finos e salgados artesanais.",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDrmE8qVtubLU6fjfQ0756psNA87pQXikwi-81Ag8UO1noOp9zOWqbcBmStJBd-OOOcRIV7qTNmbef3oSSEM-m9svDleHptRVhvFkx2CfjLugetDs4jgg5Rj_4QN6nvVxF1KB_LERFW0S0FvvN-sBwL2AQuTfWnJXuxEIGUfASjBgd_556qiAAlHNnIdx2kN2cXaINSBIVI99bv4p1jtG9T_6HdXQ0OmSe93q_3BhG9Fg83M0gix5qi9DNdv-15fW67-TkMfBNpzyp0",
+      "logo": "https://picsum.photos/100/100?random=2",
+      "rating": 4.9,
+      "phone": "(21) 8888-8888",
+      "whatsapp": null,
+      "address": "Rua das Flores, 45 - Rio",
+      "hours": "Seg-Sáb: 08h às 20h",
+      "specialties": "[\"Doces Finos\",\"Bolos Personalizados\",\"Cafés Especiais\"]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 3,
+      "segmentId": 1,
+      "createdAt": "2026-01-15T02:06:27.873Z",
+      "updatedAt": "2026-01-15T02:06:27.873Z"
+    },
+    {
+      "id": 4,
+      "slug": "mecanica-silva",
+      "name": "Auto Center Silva",
+      "description": "Manutenção preventiva e corretiva para seu veículo.",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDyPH0XCgx-EDifYG7JlzL4M2QuKeFiX3JkpIsHL9whTt7da8q5FNPS8NxHXj-qLwt1aDXUrsmSDl92jXnvOUiozXpIjw_weku8ZrBsWBbhtiPrekoz_e7MWPCDyPTrR4gXExRh4CYxUQR8OuB83gQSirBmdAM_0WD6FhKhHzqGdg_nhMjQgKEi2f-6vx0NTn7Drlx9EVw2zKKnu-uZrF9iqjOTMDt0f41u1rOQTEx_zmXj9dZkVcdejjL3ZI7YX0glTPwXcnG4qFnm",
+      "logo": "https://picsum.photos/100/100?random=3",
+      "rating": 4.2,
+      "phone": "(31) 3333-3333",
+      "whatsapp": null,
+      "address": "Av. Amazonas, 5000 - BH",
+      "hours": "Seg-Sex: 08h às 18h",
+      "specialties": "[\"Mecânica Geral\",\"Alinhamento\",\"Elétrica\"]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 1,
+      "segmentId": 2,
+      "createdAt": "2026-01-15T02:06:27.896Z",
+      "updatedAt": "2026-01-15T02:06:27.896Z"
+    },
+    {
+      "id": 5,
+      "slug": "studio-design",
+      "name": "Studio Design",
+      "description": "Transformando espaços em lares dos sonhos.",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuC-4ZBmeUNQhmoDZAND4l5pyiNvOfvma-aZSocAdawA3YCoElURGb2e33VxSN52hTf2pzjZ5y2MAEkMO4BlMQXCaqQElj8vne6VfjBaFsJSY71UgzOY_09ec4KtxJZteBYF_jp520BBJdGxQMmDaKzO55LM7VByW8ITLkrBdg07zoonioL9qgGZ3IHEJIaI0au8BrSTwye-OdMrQsAN7ZnjZBKy-Cttf-3_Acjs7abra5kxFOZdbEfk0hn17jrrpFdJ5Q5TK2eeq0bQ",
+      "logo": "https://picsum.photos/100/100?random=4",
+      "rating": 4.7,
+      "phone": "(41) 7777-7777",
+      "whatsapp": null,
+      "address": "Rua XV de Novembro, 10 - Curitiba",
+      "hours": "Seg-Sex: 09h às 18h",
+      "specialties": "[\"Arquitetura\",\"Interiores\",\"Paisagismo\"]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 4,
+      "segmentId": 5,
+      "createdAt": "2026-01-15T02:06:27.917Z",
+      "updatedAt": "2026-01-15T02:06:27.917Z"
+    },
+    {
+      "id": 6,
+      "slug": "lab-exame",
+      "name": "Lab Exame",
+      "description": "Análises clínicas com precisão e agilidade.",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCUxAk4YMmLbWAlDO1aLHMYw4B7veWDdejXLNvkhDApBBkxS74qK4QpVwZjQE634HfIW0lcuBfVDwKzDv4Kb4lGW8cT2f6gXZXAm961cL5Vn60Puww_OjJt58raCno-P6cAxB5_FKfrwaaSGrvAhjKqYG6v4bidUzm5NeeFw8S5NCV5cV8vDIRrSrzn50Hcar2Xs3tqjBC3VC21ojaP_kt1UNmiRXPDFkXKkb_qXaz3FJGtGyup_qxSgeDG_IbxSYcOnovmpe3ftmlR",
+      "logo": "https://picsum.photos/100/100?random=5",
+      "rating": 4.6,
+      "phone": "(31) 3222-1111",
+      "whatsapp": null,
+      "address": "Rua Timbiras, 2000 - BH",
+      "hours": "Seg-Sex: 06h às 17h | Sáb: 06h às 11h",
+      "specialties": "[\"Exames Laboratoriais\",\"Check-up\",\"Vacinas\"]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 1,
+      "segmentId": 3,
+      "createdAt": "2026-01-15T02:06:27.939Z",
+      "updatedAt": "2026-01-15T02:06:27.939Z"
+    },
+    {
+      "id": 1002,
+      "slug": "lanches-amorim-394",
+      "name": "Lanches Amorim",
+      "description": "Loja de teste para vender lanches.",
+      "image": "https://br.freepik.com/fotos-vetores-gratis/lanchonete",
+      "logo": null,
+      "rating": 0,
+      "phone": "21992061136",
+      "whatsapp": null,
+      "address": "Rua São Felipe, SN - Lote 19 Quadra 40. Km 32, Nova Iguaçu RJ",
+      "hours": "09:00 - 18:00",
+      "specialties": "[]",
+      "instagram": null,
+      "facebook": null,
+      "website": null,
+      "locationId": 1,
+      "segmentId": 1,
+      "createdAt": "2026-01-16T03:25:18.301Z",
+      "updatedAt": "2026-01-16T03:25:18.301Z"
+    }
+  ],
+  "offers": [
+    {
+      "id": 1,
+      "title": "Oferta Especial de Inauguração",
+      "description": "Desconto de 20% em todos os serviços/produtos desta semana. Aproveite!",
+      "price": "20% OFF",
+      "image": "https://picsum.photos/400/300",
+      "active": true,
+      "startDate": "2026-01-15T02:06:27.829Z",
+      "endDate": "2026-01-22T02:06:27.829Z",
+      "establishmentId": 1,
+      "createdAt": "2026-01-15T02:06:27.832Z",
+      "updatedAt": "2026-01-15T02:06:27.832Z"
+    },
+    {
+      "id": 2,
+      "title": "Oferta Especial de Inauguração",
+      "description": "Desconto de 20% em todos os serviços/produtos desta semana. Aproveite!",
+      "price": "20% OFF",
+      "image": "https://picsum.photos/400/300",
+      "active": true,
+      "startDate": "2026-01-15T02:06:27.862Z",
+      "endDate": "2026-01-22T02:06:27.862Z",
+      "establishmentId": 2,
+      "createdAt": "2026-01-15T02:06:27.863Z",
+      "updatedAt": "2026-01-15T02:06:27.863Z"
+    },
+    {
+      "id": 3,
+      "title": "Oferta Especial de Inauguração",
+      "description": "Desconto de 20% em todos os serviços/produtos desta semana. Aproveite!",
+      "price": "20% OFF",
+      "image": "https://picsum.photos/400/300",
+      "active": true,
+      "startDate": "2026-01-15T02:06:27.883Z",
+      "endDate": "2026-01-22T02:06:27.883Z",
+      "establishmentId": 3,
+      "createdAt": "2026-01-15T02:06:27.884Z",
+      "updatedAt": "2026-01-15T02:06:27.884Z"
+    },
+    {
+      "id": 4,
+      "title": "Oferta Especial de Inauguração",
+      "description": "Desconto de 20% em todos os serviços/produtos desta semana. Aproveite!",
+      "price": "20% OFF",
+      "image": "https://picsum.photos/400/300",
+      "active": true,
+      "startDate": "2026-01-15T02:06:27.906Z",
+      "endDate": "2026-01-22T02:06:27.906Z",
+      "establishmentId": 4,
+      "createdAt": "2026-01-15T02:06:27.907Z",
+      "updatedAt": "2026-01-15T02:06:27.907Z"
+    },
+    {
+      "id": 5,
+      "title": "Oferta Especial de Inauguração",
+      "description": "Desconto de 20% em todos os serviços/produtos desta semana. Aproveite!",
+      "price": "20% OFF",
+      "image": "https://picsum.photos/400/300",
+      "active": true,
+      "startDate": "2026-01-15T02:06:27.927Z",
+      "endDate": "2026-01-22T02:06:27.927Z",
+      "establishmentId": 5,
+      "createdAt": "2026-01-15T02:06:27.928Z",
+      "updatedAt": "2026-01-15T02:06:27.928Z"
+    },
+    {
+      "id": 6,
+      "title": "Oferta Especial de Inauguração",
+      "description": "Desconto de 20% em todos os serviços/produtos desta semana. Aproveite!",
+      "price": "20% OFF",
+      "image": "https://picsum.photos/400/300",
+      "active": true,
+      "startDate": "2026-01-15T02:06:27.949Z",
+      "endDate": "2026-01-22T02:06:27.949Z",
+      "establishmentId": 6,
+      "createdAt": "2026-01-15T02:06:27.950Z",
+      "updatedAt": "2026-01-15T02:06:27.950Z"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@vitrine.com",
+      "password": "$2b$10$nZbxnwHMHQuchIF6UX7CZOTaGBLs0wO0yu/XIkhrwrZcVwaptk3VW",
+      "name": "Admin User",
+      "role": "ADMIN",
+      "active": true,
+      "createdAt": "2026-01-15T02:06:27.962Z",
+      "updatedAt": "2026-01-15T02:06:27.962Z",
+      "establishmentId": 1
+    },
+    {
+      "id": 2,
+      "email": "teste.v1@teste.com",
+      "password": "$2b$10$YohppCo5P22US2wATWSKf..PmBR4X6lRoNA5hfBISUB9zwO8LYKEq",
+      "name": "teste v1",
+      "role": "STORE_OWNER",
+      "active": true,
+      "createdAt": "2026-01-15T02:26:49.726Z",
+      "updatedAt": "2026-01-15T02:57:48.473Z",
+      "establishmentId": 2
+    },
+    {
+      "id": 3,
+      "email": "mcmoriam@gmail.com",
+      "password": "$2b$10$M7uw.x0N2lc6rkNFaDj9suzgnTDwu37uuWR59.uH027qm9MrQOnFq",
+      "name": "Claudio (Restored)",
+      "role": "ADMIN",
+      "active": true,
+      "createdAt": "2026-01-15T02:44:01.103Z",
+      "updatedAt": "2026-01-15T02:44:01.103Z",
+      "establishmentId": null
+    },
+    {
+      "id": 1002,
+      "email": "claudio.a.santana@outlook.com",
+      "password": "$2b$10$KSQq9K9OJQ.R.VeYbmrXve/O.TF4K4QbvgmSjUdgrGRYRag.bMGlC",
+      "name": "A de Santana",
+      "role": "STORE_OWNER",
+      "active": true,
+      "createdAt": "2026-01-16T01:13:58.758Z",
+      "updatedAt": "2026-01-16T03:25:18.301Z",
+      "establishmentId": 1002
+    }
+  ]
+}

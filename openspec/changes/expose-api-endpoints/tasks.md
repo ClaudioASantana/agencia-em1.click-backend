@@ -1,0 +1,4 @@
+- [x] Backend: Enable CORS <!-- id: 0 -->
+- [x] Backend: Create `Catalog` Module (Locations/Segments) <!-- id: 1 -->
+- [x] Backend: Create `Establishment` Module (Establishments/Offers) <!-- id: 2 -->
+- [x] Frontend: Update `api.ts` to fetch from real API <!-- id: 3 -->

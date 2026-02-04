@@ -1,0 +1,5 @@
+- [x] **Database**: Create migration to migrate `active` and `isDefault` columns to single `status` column.
+- [x] **Backend**: Update `PublicationService.findForStore()` to implement the Cascade Logic (Active > Date Check > Standard).
+- [x] **Backend**: Ensure "PADRAO" status enforces uniqueness (only one PADRAO per store).
+- [x] **Frontend**: Update `PublicationEditor` to select Status (Draft, Ativa, Padrão) instead of switches.
+- [x] **Frontend**: Update `PublicationsView` list to show badges based on new status.

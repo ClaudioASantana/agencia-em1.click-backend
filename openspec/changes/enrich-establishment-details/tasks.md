@@ -1,0 +1,4 @@
+- [x] Schema: Add `hours` and `specialties` to `Establishment` <!-- id: 0 -->
+- [x] Backend: Update `Establishment` service to parse `specialties` <!-- id: 1 -->
+- [x] Seed: Populate new fields <!-- id: 2 -->
+- [x] Verify: Check API response <!-- id: 3 -->

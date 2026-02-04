@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model E {
+  id Int @id
+  offers O[]
+  ps P[]
+}
+
+model P {
+  id    Int @id
+  eId Int
+  e E @relation(fields: [eId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  offers O[]
+}
+
+model O {
+  id Int @id
+  eId Int
+  e E @relation(fields: [eId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  pId Int?
+  p P? @relation(fields: [pId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}

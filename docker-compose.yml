@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bureau-mssql
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'MyStrongPassword2026'
+    ports:
+      - '1433:1433'
+    volumes:
+      - mssql_data_v2:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  mssql_data_v2:
