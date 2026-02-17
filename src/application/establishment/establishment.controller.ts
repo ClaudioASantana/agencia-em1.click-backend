@@ -129,4 +129,18 @@ export class EstablishmentController {
 
     return this.establishmentService.update(establishmentId, updateDto);
   }
+
+  @Get('me/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get metrics for the logged establishment' })
+  async getMyStats(@Req() req: any) {
+    const estId = req.user.establishmentId;
+    if (!estId) {
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
+    }
+    return this.establishmentService.getStats(estId);
+  }
 }

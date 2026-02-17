@@ -248,4 +248,50 @@ export class EstablishmentService {
       specialties: est.specialties ? JSON.parse(est.specialties) : [],
     }));
   }
+
+  async getStats(establishmentId: number) {
+    const establishment = await this.prisma.establishment.findUnique({
+      where: { id: establishmentId },
+      include: {
+        offers: {
+          where: { active: true },
+        },
+        follows: true,
+      },
+    });
+
+    if (!establishment) throw new NotFoundException('Establishment not found');
+
+    // Simulate some historical data based on creation dates
+    // In a real scenario, this would come from an Analytics/Logs table
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d.toLocaleDateString('pt-BR', { weekday: 'short' });
+    });
+
+    const last30Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (30 - i * 5));
+      return d.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+      });
+    });
+
+    return {
+      views: Math.floor(Math.random() * 500) + 1000, // Placeholder as we don't track views yet
+      activeOffers: establishment.offers.length,
+      rating: establishment.rating || 0,
+      followers: establishment.follows.length,
+      visitsHistory: {
+        labels: last30Days,
+        values: [30, 45, 25, 60, 55, 90, 70], // Hardcoded for now but ready for API
+      },
+      engagementHistory: {
+        labels: last7Days,
+        values: [12, 19, 15, 8, 22, 30, 25], // Hardcoded for now but ready for API
+      },
+    };
+  }
 }

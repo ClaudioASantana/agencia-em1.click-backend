@@ -74,4 +74,16 @@ export class AuthController {
 
     return this.authService.impersonateUser(Number(userId));
   }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetDto: any) {
+    return this.authService.resetPassword(resetDto.token, resetDto.password);
+  }
 }
