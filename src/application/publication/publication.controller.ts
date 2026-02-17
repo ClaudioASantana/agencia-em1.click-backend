@@ -56,6 +56,34 @@ export class PublicationController {
     return [];
   }
 
+  @Get('my-publications')
+  async findMyPublications(@Request() req) {
+    try {
+      const userId = req.user?.userId;
+      console.log(
+        '📡 [Publications] findMyPublications called - UserID:',
+        userId,
+      );
+      if (!userId) {
+        console.log('⚠️ [Publications] No UserID found in request');
+        return [];
+      }
+      const results = await this.publicationService.findByUserId(userId);
+      console.log(
+        `✅ [Publications] Found ${results.length} publications for UserID ${userId}`,
+      );
+      // Temporarily return simple object to check serialization
+      return results;
+    } catch (error) {
+      console.error('❌ [Publications] Error in findMyPublications:', error);
+      return {
+        statusCode: 500,
+        message: error.message,
+        stack: error.stack,
+      };
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.publicationService.findOne(+id);

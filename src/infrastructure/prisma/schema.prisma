@@ -8,124 +8,111 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  role      String   @default("STORE_OWNER")
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  establishments Establishment[]
-  follows        Follow[]
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  name           String?
+  role           String          @default("STORE_OWNER")
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  resetToken        String?
+  resetTokenExpires DateTime?
+  follows           Follow[]
+  establishments    Establishment[] @relation("EstablishmentToUser")
 }
 
 model Location {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   establishments Establishment[]
 }
 
 model Segment {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   establishments Establishment[]
 }
 
 model Establishment {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique // For URL friendly ID
-  name        String
-  description String?  // Optional detailed description
-  image       String?  // Main image
-  logo        String?  // Logo image
-  rating      Float?   @default(0)
-  
-  phone       String?
-  whatsapp    String?
-  address     String?
-  state       String?  // UF (e.g. MG, SP)
-  city        String?  // City Name (e.g. Belo Horizonte)
-  hours       String?
-  specialties String? // Stored as JSON string or text
-  
-  // Social Media
-  instagram   String?
-  facebook    String?
-  website     String?
-  
-  // Geolocation
-  latitude    Float?
-  longitude   Float?
-  
-  // Relations
-  locationId  Int
-  location    Location @relation(fields: [locationId], references: [id])
-  segmentId   Int
-  segment     Segment  @relation(fields: [segmentId], references: [id])
-  offers      Offer[]
+  id           Int           @id @default(autoincrement())
+  slug         String        @unique
+  name         String
+  description  String?
+  image        String?
+  logo         String?
+  rating       Float?        @default(0)
+  phone        String?
+  whatsapp     String?
+  address      String?
+  state        String?
+  city         String?
+  hours        String?
+  specialties  String?
+  instagram    String?
+  facebook     String?
+  website      String?
+  latitude     Float?
+  longitude    Float?
+  locationId   Int
+  segmentId    Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  location     Location      @relation(fields: [locationId], references: [id])
+  segment      Segment       @relation(fields: [segmentId], references: [id])
+  follows      Follow[]
+  offers       Offer[]
   publications Publication[]
-  users       User[]
-  follows     Follow[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  users        User[]        @relation("EstablishmentToUser")
 }
 
 model Offer {
-  id              Int           @id @default(autoincrement())
-  title           String
-  slug            String?       // Optional for now to avoid db reset
-  description     String?
-  price           String?       // Storing as string for flexibility (e.g. "R$ 29,90")
-  originalPrice   String?       // New field for "Preço Original"
-  discountPercentage Float?     // New field for "Desconto em %"
-  image           String?
-  active          Boolean       @default(true)
-  highlight       Boolean       @default(false) // New field for "Destaque"
-  startDate       DateTime?
-  endDate         DateTime?
-  
-  establishmentId Int
-  establishment   Establishment @relation(fields: [establishmentId], references: [id])
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  publicationId Int?
-  publication   Publication? @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                 Int           @id @default(autoincrement())
+  title              String
+  slug               String?
+  description        String?
+  price              String?
+  originalPrice      String?
+  discountPercentage Float?
+  image              String?
+  active             Boolean       @default(true)
+  highlight          Boolean       @default(false)
+  startDate          DateTime?
+  endDate            DateTime?
+  establishmentId    Int
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  publicationId      Int?
+  establishment      Establishment @relation(fields: [establishmentId], references: [id])
+  publication        Publication?  @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Publication {
   id              Int           @id @default(autoincrement())
-  title           String        // e.g. "Natal 2024", "Ofertas da Semana"
+  title           String
   description     String?
-  status          String        @default("DRAFT") // DRAFT, ACTIVE, PADRAO, ARCHIVED
+  status          String        @default("DRAFT")
   startDate       DateTime?
   endDate         DateTime?
-
-  priority        String        @default("Média") // Baixa, Média, Alta
+  priority        String        @default("Média")
   establishmentId Int
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  
-  offers          Offer[]       @relation("PublicationOffers")
-
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  offers          Offer[]       @relation("PublicationOffers")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Follow {
   id              Int           @id @default(autoincrement())
   userId          Int
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   establishmentId Int
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId])
 }

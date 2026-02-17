@@ -38,6 +38,28 @@ export class PublicationService {
       where: { establishmentId },
       orderBy: { createdAt: 'desc' },
       include: {
+        establishment: true, // Added to show establishment info in cards
+        _count: {
+          select: { offers: true },
+        },
+      },
+    });
+  }
+
+  async findByUserId(userId: number) {
+    return this.prisma.publication.findMany({
+      where: {
+        establishment: {
+          users: {
+            some: {
+              id: userId,
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        establishment: true,
         _count: {
           select: { offers: true },
         },
