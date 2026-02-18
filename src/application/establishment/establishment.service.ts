@@ -71,7 +71,11 @@ export class EstablishmentService {
             active: true,
             publication: { status: { in: ['ACTIVE', 'PADRAO'] } },
           },
-          include: { publication: true }, // Helper to access status/dates
+          include: { publication: true },
+        },
+        publications: {
+          where: { status: 'ACTIVE' },
+          orderBy: { createdAt: 'desc' },
         },
       },
       orderBy: { name: 'asc' },
@@ -98,6 +102,10 @@ export class EstablishmentService {
             },
           },
           include: { publication: true },
+        },
+        publications: {
+          where: { status: 'ACTIVE' },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -128,6 +136,10 @@ export class EstablishmentService {
             },
           },
           include: { publication: true },
+        },
+        publications: {
+          where: { status: 'ACTIVE' },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });

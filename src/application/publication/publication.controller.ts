@@ -17,11 +17,12 @@ import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 @Controller('publications')
-@UseGuards(JwtAuthGuard) // Protect all routes
+// @UseGuards(JwtAuthGuard) // Removed to allow public access to GET
 export class PublicationController {
   constructor(private readonly publicationService: PublicationService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Request() req, @Body() createPublicationDto: CreatePublicationDto) {
     // Force establishment ID from logged user context if needed,
     // but typically user context has establishment ID?
@@ -57,6 +58,7 @@ export class PublicationController {
   }
 
   @Get('my-publications')
+  @UseGuards(JwtAuthGuard)
   async findMyPublications(@Request() req) {
     try {
       const userId = req.user?.userId;
@@ -90,6 +92,7 @@ export class PublicationController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updatePublicationDto: UpdatePublicationDto,
@@ -98,6 +101,7 @@ export class PublicationController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.publicationService.remove(+id);
   }

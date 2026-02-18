@@ -11,9 +11,16 @@ import { SegmentModule } from './application/segment/segment.module';
 import { OfferModule } from './application/offer/offer.module';
 import { PublicationModule } from './application/publication/publication.module';
 import { FollowsModule } from './application/follows/follows.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { UploadModule } from './application/upload/upload.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     UsersModule,
@@ -24,6 +31,7 @@ import { FollowsModule } from './application/follows/follows.module';
     OfferModule,
     PublicationModule,
     FollowsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
