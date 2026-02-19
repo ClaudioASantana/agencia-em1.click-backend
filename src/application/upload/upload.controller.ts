@@ -11,9 +11,12 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
+import { ConfigService } from '@nestjs/config';
+
 @ApiTags('Upload')
 @Controller('upload')
 export class UploadController {
+  constructor(private configService: ConfigService) {}
   @Post()
   @ApiOperation({ summary: 'Upload a file (image)' })
   @ApiConsumes('multipart/form-data')
@@ -53,7 +56,8 @@ export class UploadController {
     file: Express.Multer.File,
   ) {
     // Construct public URL
-    const baseUrl = process.env.API_URL || 'http://localhost:3000';
+    const baseUrl =
+      this.configService.get<string>('API_URL') || 'http://localhost:3000';
     // Ensure we don't double slash if API_URL has trailing slash
     const cleanBaseUrl = baseUrl.replace(/\/$/, '');
     const fileUrl = `${cleanBaseUrl}/uploads/${file.filename}`;
