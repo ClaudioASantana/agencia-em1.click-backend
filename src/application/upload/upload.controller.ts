@@ -56,8 +56,10 @@ export class UploadController {
     file: Express.Multer.File,
   ) {
     // Construct public URL
-    const baseUrl =
-      this.configService.get<string>('API_URL') || 'http://localhost:3000';
+    const baseUrl = this.configService.get<string>('API_URL');
+    if (!baseUrl) {
+      throw new Error('API_URL environment variable is not defined');
+    }
     // Ensure we don't double slash if API_URL has trailing slash
     const cleanBaseUrl = baseUrl.replace(/\/$/, '');
     const fileUrl = `${cleanBaseUrl}/uploads/${file.filename}`;
