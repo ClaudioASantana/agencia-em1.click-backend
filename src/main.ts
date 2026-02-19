@@ -6,7 +6,25 @@ import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'http://agencia.amorimdev.cloud',
+      'http://localhost:5173',
+      'http://localhost:4200',
+      'http://localhost:4201',
+      'http://localhost:4202',
+      'http://localhost:3000',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
+  // Middleware for PNA (Private Network Access)
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Private-Network', 'true');
+    next();
+  });
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
   app.useGlobalPipes(
