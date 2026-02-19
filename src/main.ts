@@ -7,7 +7,14 @@ import { json, urlencoded } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://agencia.amorimdev.cloud'],
+    origin: [
+      'http://agencia.amorimdev.cloud',
+      'http://localhost:5173',
+      'http://localhost:4200',
+      'http://localhost:4201',
+      'http://localhost:4202',
+      'http://localhost:3000',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization',
