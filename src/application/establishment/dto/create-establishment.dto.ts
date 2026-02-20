@@ -113,7 +113,7 @@ export class CreateEstablishmentDto {
   @ApiProperty({
     description: 'Show offer prices in vitrine',
     required: false,
-    default: true,
+    default: false,
   })
   @IsOptional()
   @IsBoolean()
