@@ -9,6 +9,9 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://agencia.amorimdev.cloud',
+      'https://agencia.amorimdev.cloud',
+      'http://vitrine.amorimdev.cloud',
+      'https://vitrine.amorimdev.cloud',
       'http://localhost:5173',
       'http://localhost:4200',
       'http://localhost:4201',
