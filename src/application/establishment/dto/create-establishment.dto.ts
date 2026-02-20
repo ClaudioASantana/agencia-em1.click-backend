@@ -5,6 +5,7 @@ import {
   IsString,
   IsArray,
   IsNumber,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateEstablishmentDto {
@@ -108,4 +109,13 @@ export class CreateEstablishmentDto {
   @IsNotEmpty()
   @IsNumber()
   segmentId: number;
+
+  @ApiProperty({
+    description: 'Show offer prices in vitrine',
+    required: false,
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  showPrice?: boolean;
 }
