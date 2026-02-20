@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsArray, IsNumber } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsArray,
+  IsNumber,
+  IsBoolean,
+} from 'class-validator';
 
 export class UpdateEstablishmentDto {
   @ApiProperty({
@@ -95,4 +101,9 @@ export class UpdateEstablishmentDto {
   @IsOptional()
   @IsNumber()
   locationId?: number;
+
+  @ApiProperty({ description: 'Show offer prices in vitrine', required: false })
+  @IsOptional()
+  @IsBoolean()
+  showPrice?: boolean;
 }
