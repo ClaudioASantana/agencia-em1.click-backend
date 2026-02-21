@@ -146,7 +146,7 @@ export class SeedController {
       },
     ];
 
-    const results = [];
+    const results: any[] = [];
 
     for (const store of offersData) {
       for (const offer of store.offers) {
