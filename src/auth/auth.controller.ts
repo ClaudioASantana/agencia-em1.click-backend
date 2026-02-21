@@ -86,4 +86,10 @@ export class AuthController {
   async resetPassword(@Body() resetDto: any) {
     return this.authService.resetPassword(resetDto.token, resetDto.password);
   }
+
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Body('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
 }

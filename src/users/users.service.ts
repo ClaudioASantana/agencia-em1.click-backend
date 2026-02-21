@@ -2,10 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../infrastructure/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../infrastructure/mail/mail.service';
+import * as crypto from 'crypto';
+
+interface CreateUserDto extends Prisma.UserCreateInput {
+  establishmentIds?: number[];
+  storeName?: string;
+}
+
+interface UpdateUserDto extends Prisma.UserUpdateInput {
+  establishmentIds?: number[];
+}
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   async findOne(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
@@ -13,13 +27,17 @@ export class UsersService {
     });
   }
 
-  async create(data: any): Promise<User> {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+  async create(data: CreateUserDto): Promise<User> {
+    const password = data.password as string;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const { establishmentIds, storeName, ...userData } = data;
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
     const createData: Prisma.UserCreateInput = {
       ...userData,
       password: hashedPassword,
+      verificationToken,
+      emailVerified: false,
     };
 
     if (establishmentIds && Array.isArray(establishmentIds)) {
@@ -28,39 +46,30 @@ export class UsersService {
       };
     }
 
-    // New Logic: Create Store if storeName is provided
     if (storeName) {
-      if (!createData.establishments) {
-        createData.establishments = {};
-      }
-
       const slug =
         storeName
           .toLowerCase()
           .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '') // Remove accents
-          .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
-          .replace(/(^-|-$)+/g, '') + // Remove leading/trailing hyphens
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)+/g, '') +
         '-' +
-        Math.floor(Math.random() * 10000); // Add random suffix for uniqueness
-
-      // Properly structure the create input
-      // We need to cast specific parts if types are strict, but structure must be correct:
-      // establishments: { create: [ { ...data } ] }
+        Math.floor(Math.random() * 10000);
 
       const newStore = {
         name: storeName,
         slug: slug,
         segmentId: 1,
-        locationId: 1, // Also required by schema relation
+        locationId: 1,
       };
 
-      // If connect was already set (unlikely in this flow but possible), we shouldn't overwrite it blindly.
-      // But typically for registration, it's one or the other.
-      // Merging 'create' into the object.
-
-      if ((createData.establishments as any).connect) {
-        (createData.establishments as any).create = [newStore];
+      if (createData.establishments && 'connect' in createData.establishments) {
+        // Handle existing connect if any
+        createData.establishments = {
+          ...createData.establishments,
+          create: [newStore],
+        };
       } else {
         createData.establishments = {
           create: [newStore],
@@ -68,13 +77,21 @@ export class UsersService {
       }
     }
 
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: createData,
     });
+
+    try {
+      await this.mailService.sendUserConfirmation(user, verificationToken);
+    } catch (error) {
+      console.error('Email sending failed during registration:', error);
+    }
+
+    return user;
   }
 
   async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       select: {
         id: true,
         email: true,
@@ -89,24 +106,22 @@ export class UsersService {
         createdAt: true,
         updatedAt: true,
         role: true,
-        password: false, // Exclude password
       },
-    }) as unknown as User[];
+    });
+    return users as unknown as User[];
   }
 
-  async update(id: number, data: any): Promise<User> {
+  async update(id: number, data: UpdateUserDto): Promise<User> {
     const { establishmentIds, ...updateData } = data;
 
-    if (updateData.password) {
+    if (updateData.password && typeof updateData.password === 'string') {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }
 
-    // Prepare prisma update data
     const prismaUpdate: Prisma.UserUpdateInput = {
       ...updateData,
     };
 
-    // If establishmentIds is provided, update the relations
     if (establishmentIds && Array.isArray(establishmentIds)) {
       prismaUpdate.establishments = {
         set: establishmentIds.map((eid: number) => ({ id: eid })),

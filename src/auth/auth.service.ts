@@ -2,12 +2,15 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../infrastructure/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../infrastructure/mail/mail.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -17,6 +20,7 @@ export class AuthService {
     });
 
     if (user && (await bcrypt.compare(pass, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     }
@@ -26,23 +30,24 @@ export class AuthService {
 
   async login(user: any) {
     // Legacy support: use the first establishment as the "active" one for the token
-    const primaryEstId = user.establishments?.[0]?.id || null;
+    const establishments = (user.establishments as any[]) || [];
+    const primaryEstId = establishments[0]?.id || null;
 
     const payload = {
-      username: user.email,
-      name: user.name,
-      sub: user.id,
+      username: user.email as string,
+      name: user.name as string,
+      sub: user.id as number,
       establishmentId: primaryEstId,
-      role: user.role,
+      role: user.role as string,
     };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: await this.jwtService.signAsync(payload),
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+        id: user.id as number,
+        name: user.name as string,
+        email: user.email as string,
         establishmentId: primaryEstId,
-        role: user.role,
+        role: user.role as string,
       },
     };
   }
@@ -65,7 +70,7 @@ export class AuthService {
       // Modify login payload for impersonation
       const payload = {
         username: targetUser.email,
-        name: targetUser.name,
+        name: targetUser.name || '',
         sub: targetUser.id,
         establishmentId: establishment.id, // Explicitly set to target est
         role: targetUser.role,
@@ -73,7 +78,7 @@ export class AuthService {
       };
 
       return {
-        access_token: this.jwtService.sign(payload),
+        access_token: await this.jwtService.signAsync(payload),
         user: {
           id: targetUser.id,
           name: targetUser.name,
@@ -86,20 +91,21 @@ export class AuthService {
 
     // 3. Fallback: Generate token for admin but bound to this establishment
     const payload = {
-      username: adminUser.username,
-      name: adminUser.name || adminUser.username, // Use name if available
-      sub: adminUser.userId,
+      username: adminUser.username as string,
+      name: (adminUser.name || adminUser.username) as string, // Use name if available
+      sub: adminUser.userId as number,
       establishmentId: establishment.id,
       role: 'STORE_OWNER', // Acting as owner
       isImpersonation: true,
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: await this.jwtService.signAsync(payload),
       user: {
-        id: adminUser.userId,
-        name: adminUser.name || `${adminUser.username} (Impersonating)`,
-        email: adminUser.username,
+        id: adminUser.userId as number,
+        name: (adminUser.name ||
+          `${adminUser.username as string} (Impersonating)`) as string,
+        email: adminUser.username as string,
         establishmentId: establishment.id,
         role: 'STORE_OWNER',
       },
@@ -117,12 +123,13 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const primaryEstId = targetUser.establishments?.[0]?.id || null;
+    const establishments = (targetUser.establishments as any[]) || [];
+    const primaryEstId = establishments[0]?.id || null;
 
     // 2. Modify login payload for impersonation
     const payload = {
       username: targetUser.email,
-      name: targetUser.name,
+      name: targetUser.name || '',
       sub: targetUser.id,
       establishmentId: primaryEstId,
       role: targetUser.role,
@@ -130,7 +137,7 @@ export class AuthService {
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: await this.jwtService.signAsync(payload),
       user: {
         id: targetUser.id,
         name: targetUser.name,
@@ -141,13 +148,36 @@ export class AuthService {
     };
   }
 
+  async verifyEmail(token: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        // @ts-ignore - Prisma client needs local refresh to see new fields
+        verificationToken: token,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Token de verificação inválido');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        // @ts-ignore
+        emailVerified: true,
+        // @ts-ignore
+        verificationToken: null,
+      },
+    });
+
+    return { message: 'E-mail verificado com sucesso!' };
+  }
+
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) return; // Silent return for security
 
-    const token =
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15);
+    const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date();
     expires.setHours(expires.getHours() + 1);
 
@@ -159,7 +189,13 @@ export class AuthService {
       },
     });
 
-    // In a real app, send email here. For now, we return it or log it.
+    // In a real app, send email here.
+    try {
+      await this.mailService.sendPasswordReset(user, token);
+    } catch (error: any) {
+      console.error('Failed to send reset password email:', error?.message);
+    }
+
     console.log(`Reset token for ${email}: ${token}`);
     return {
       message: 'Se o e-mail existir, um link de recuperação foi enviado.',

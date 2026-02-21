@@ -13,6 +13,7 @@ import { PublicationModule } from './application/publication/publication.module'
 import { FollowsModule } from './application/follows/follows.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MailModule } from './infrastructure/mail/mail.module';
 import { UploadModule } from './application/upload/upload.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { UploadModule } from './application/upload/upload.module';
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    MailModule,
     UsersModule,
     AuthModule,
     CatalogModule,
