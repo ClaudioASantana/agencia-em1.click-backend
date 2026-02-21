@@ -15,6 +15,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UploadModule } from './application/upload/upload.module';
 
+import { SeedController } from './application/seed/seed.controller';
+
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -33,7 +35,7 @@ import { UploadModule } from './application/upload/upload.module';
     FollowsModule,
     UploadModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, SeedController],
   providers: [AppService],
 })
 export class AppModule {}
