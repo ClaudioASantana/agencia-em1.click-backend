@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
   Req,
-  ForbiddenException,
 } from '@nestjs/common';
 import { OfferService } from './offer.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
@@ -21,6 +20,8 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { PlanGuard } from '../plans/plan.guard';
+import { PlanResource } from '../plans/plan-resource.decorator';
 
 @ApiTags('Offer')
 @Controller('offers')
@@ -28,14 +29,11 @@ export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PlanGuard)
+  @PlanResource('offer')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new offer' })
   async create(@Req() req: any, @Body() createOfferDto: CreateOfferDto) {
-    // Optional: Verify if user owns the establishment
-    // const userEstId = req.user.establishmentId;
-    // if (userEstId !== createOfferDto.establishmentId) throw new ForbiddenException();
-
     return this.offerService.create(createOfferDto);
   }
 

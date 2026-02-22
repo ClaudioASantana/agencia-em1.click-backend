@@ -20,8 +20,34 @@ model User {
   updatedAt         DateTime        @updatedAt
   resetToken        String?
   resetTokenExpires DateTime?
+  notificationOptOut Boolean        @default(false)
   follows           Follow[]
   establishments    Establishment[] @relation("EstablishmentToUser")
+  subscription      Subscription?
+}
+
+model Plan {
+  id                 Int            @id @default(autoincrement())
+  name               String         @unique
+  price              Float          @default(0)
+  maxPublications    Int            @default(1)
+  maxOffersPerPub    Int            @default(5)
+  maxEstablishments  Int            @default(1)
+  allowsHighlight    Boolean        @default(false)
+  allowsAnalytics    Boolean        @default(false)
+  createdAt          DateTime       @default(now())
+  subscriptions      Subscription[]
+}
+
+model Subscription {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @unique
+  planId     Int
+  status     String    @default("ACTIVE")
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan       Plan      @relation(fields: [planId], references: [id])
 }
 
 model Location {
@@ -41,13 +67,13 @@ model Segment {
 }
 
 model Establishment {
-  id           Int           @id @default(autoincrement())
-  slug         String        @unique
+  id           Int               @id @default(autoincrement())
+  slug         String            @unique
   name         String
   description  String?
   image        String?
   logo         String?
-  rating       Float?        @default(0)
+  rating       Float?            @default(0)
   phone        String?
   whatsapp     String?
   address      String?
@@ -62,19 +88,22 @@ model Establishment {
   longitude    Float?
   locationId   Int
   segmentId    Int
-  showPrice    Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  location     Location      @relation(fields: [locationId], references: [id])
-  segment      Segment       @relation(fields: [segmentId], references: [id])
+  showPrice    Boolean           @default(false)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  location     Location          @relation(fields: [locationId], references: [id])
+  segment      Segment           @relation(fields: [segmentId], references: [id])
   follows      Follow[]
   offers       Offer[]
   publications Publication[]
-  users        User[]        @relation("EstablishmentToUser")
+  users        User[]            @relation("EstablishmentToUser")
+  analyticsEvents AnalyticsEvent[]
+  shareTokens     ShareToken[]
+  leads           Lead[]
 }
 
 model Offer {
-  id                 Int           @id @default(autoincrement())
+  id                 Int              @id @default(autoincrement())
   title              String
   slug               String?
   description        String?
@@ -82,16 +111,17 @@ model Offer {
   originalPrice      String?
   discountPercentage Float?
   image              String?
-  active             Boolean       @default(true)
-  highlight          Boolean       @default(false)
+  active             Boolean          @default(true)
+  highlight          Boolean          @default(false)
   startDate          DateTime?
   endDate            DateTime?
   establishmentId    Int
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
   publicationId      Int?
-  establishment      Establishment @relation(fields: [establishmentId], references: [id])
-  publication        Publication?  @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  establishment      Establishment    @relation(fields: [establishmentId], references: [id])
+  publication        Publication?     @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  analyticsEvents    AnalyticsEvent[]
 }
 
 model Publication {
@@ -105,8 +135,9 @@ model Publication {
   establishmentId Int
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  offers          Offer[]       @relation("PublicationOffers")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  offers              Offer[]              @relation("PublicationOffers")
+  establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  leadNotifications   LeadNotification[]
 }
 
 model Follow {
@@ -118,4 +149,60 @@ model Follow {
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId])
+}
+
+model ShareToken {
+  id              Int           @id @default(autoincrement())
+  token           String        @unique
+  establishmentId Int
+  clickCount      Int           @default(0)
+  createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  leads           Lead[]
+
+  @@index([establishmentId])
+}
+
+model Lead {
+  id              Int           @id @default(autoincrement())
+  phone           String
+  establishmentId Int
+  shareTokenId    Int?
+  consentAt       DateTime      @default(now())
+  consentText     String
+  active          Boolean       @default(true)
+  unsubscribedAt  DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  shareToken          ShareToken?          @relation(fields: [shareTokenId], references: [id], onDelete: SetNull)
+  notifications       LeadNotification[]
+
+  @@unique([phone, establishmentId])
+  @@index([establishmentId, active])
+}
+
+model LeadNotification {
+  id            Int         @id @default(autoincrement())
+  leadId        Int
+  publicationId Int
+  status        String      @default("PENDING") // PENDING | SENT | FAILED
+  sentAt        DateTime    @default(now())
+  lead          Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@unique([leadId, publicationId])
+}
+
+model AnalyticsEvent {
+  id              Int           @id @default(autoincrement())
+  eventType       String
+  establishmentId Int
+  offerId         Int?
+  sessionId       String?
+  createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  offer           Offer?        @relation(fields: [offerId], references: [id], onDelete: SetNull)
+
+  @@index([establishmentId, eventType, createdAt])
 }

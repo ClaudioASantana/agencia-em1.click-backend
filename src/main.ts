@@ -16,6 +16,7 @@ async function bootstrap() {
       'https://store.amorimdev.cloud',
       'https://api.amorimdev.cloud',
       'http://localhost:5173',
+      'http://localhost:5174',
       'http://localhost:4200',
       'http://localhost:4201',
       'http://localhost:4202',

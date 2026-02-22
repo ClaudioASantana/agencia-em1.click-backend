@@ -15,6 +15,11 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { UploadModule } from './application/upload/upload.module';
+import { PlanModule } from './application/plans/plan.module';
+import { SubscriptionModule } from './application/subscriptions/subscription.module';
+import { AnalyticsModule } from './application/analytics/analytics.module';
+import { ShareTokenModule } from './application/share-token/share-token.module';
+import { LeadModule } from './application/lead/lead.module';
 
 @Module({
   imports: [
@@ -34,6 +39,11 @@ import { UploadModule } from './application/upload/upload.module';
     PublicationModule,
     FollowsModule,
     UploadModule,
+    PlanModule,
+    SubscriptionModule,
+    AnalyticsModule,
+    ShareTokenModule,
+    LeadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
