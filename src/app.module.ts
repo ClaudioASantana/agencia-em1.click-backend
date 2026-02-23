@@ -5,6 +5,8 @@ import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { CatalogModule } from './application/catalog/catalog.module';
 import { EstablishmentModule } from './application/establishment/establishment.module';
 import { SegmentModule } from './application/segment/segment.module';
@@ -20,6 +22,7 @@ import { SubscriptionModule } from './application/subscriptions/subscription.mod
 import { AnalyticsModule } from './application/analytics/analytics.module';
 import { ShareTokenModule } from './application/share-token/share-token.module';
 import { LeadModule } from './application/lead/lead.module';
+import { QrCodesModule } from './application/qr-codes/qr-codes.module';
 
 @Module({
   imports: [
@@ -28,6 +31,7 @@ import { LeadModule } from './application/lead/lead.module';
       serveRoot: '/uploads',
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     PrismaModule,
     MailModule,
     UsersModule,
@@ -44,8 +48,12 @@ import { LeadModule } from './application/lead/lead.module';
     AnalyticsModule,
     ShareTokenModule,
     LeadModule,
+    QrCodesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
@@ -103,7 +103,7 @@ export class PublicationService {
     return standardPub || null;
   }
 
-  async update(id: number, updatePublicationDto: UpdatePublicationDto) {
+  async update(id: number, updatePublicationDto: UpdatePublicationDto, userId?: number) {
     const { offerIds, status, ...data } = updatePublicationDto;
 
     // Buscar status anterior para detectar transição para ACTIVE
@@ -111,6 +111,17 @@ export class PublicationService {
       where: { id },
       select: { status: true, establishmentId: true },
     });
+
+    if (!existing) throw new NotFoundException('Publication not found');
+
+    // Verificar propriedade quando userId fornecido (não-admin)
+    if (userId) {
+      const owns = await this.prisma.establishment.findFirst({
+        where: { id: existing.establishmentId, users: { some: { id: userId } } },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Sem permissão para editar esta publicação');
+    }
 
     if (status === 'PADRAO' && existing) {
       await this.prisma.publication.updateMany({
@@ -142,7 +153,20 @@ export class PublicationService {
     return updated;
   }
 
-  remove(id: number) {
+  async remove(id: number, userId?: number) {
+    if (userId) {
+      const existing = await this.prisma.publication.findUnique({
+        where: { id },
+        select: { establishmentId: true },
+      });
+      if (!existing) throw new NotFoundException('Publication not found');
+
+      const owns = await this.prisma.establishment.findFirst({
+        where: { id: existing.establishmentId, users: { some: { id: userId } } },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Sem permissão para excluir esta publicação');
+    }
     return this.prisma.publication.delete({ where: { id } });
   }
 

@@ -59,14 +59,17 @@ export class PublicationController {
   @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
+    @Request() req,
     @Body() updatePublicationDto: UpdatePublicationDto,
   ) {
-    return this.publicationService.update(+id, updatePublicationDto);
+    const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
+    return this.publicationService.update(+id, updatePublicationDto, userId);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.publicationService.remove(+id);
+  remove(@Param('id') id: string, @Request() req) {
+    const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
+    return this.publicationService.remove(+id, userId);
   }
 }

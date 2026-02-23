@@ -64,15 +64,17 @@ export class OfferController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update an offer' })
-  update(@Param('id') id: string, @Body() updateOfferDto: UpdateOfferDto) {
-    return this.offerService.update(+id, updateOfferDto);
+  update(@Param('id') id: string, @Req() req: any, @Body() updateOfferDto: UpdateOfferDto) {
+    const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
+    return this.offerService.update(+id, updateOfferDto, userId);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete an offer' })
-  remove(@Param('id') id: string) {
-    return this.offerService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
+    return this.offerService.remove(+id, userId);
   }
 }

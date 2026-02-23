@@ -10,6 +10,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { AnalyticsService } from './analytics.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -21,6 +22,7 @@ export class AnalyticsController {
 
   @Post('events')
   @HttpCode(204)
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
   @ApiOperation({ summary: 'Registrar evento de analytics (público)' })
   async track(@Body() dto: CreateEventDto) {
     // fire-and-forget: retorna imediatamente, processa em background
@@ -28,6 +30,7 @@ export class AnalyticsController {
   }
 
   @Get('dashboard')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Dashboard de analytics do lojista' })

@@ -6,12 +6,13 @@ import {
   Body,
   UseGuards,
   Req,
-  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import { SubscriptionService } from './subscription.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { RolesGuard } from '../../auth/roles.guard';
+import { Roles } from '../../auth/roles.decorator';
 
 class AssignPlanDto {
   @IsInt()
@@ -24,11 +25,11 @@ export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Listar todas as assinaturas (Admin)' })
-  findAll(@Req() req: any) {
-    if (req.user.role !== 'ADMIN') throw new ForbiddenException();
+  findAll() {
     return this.subscriptionService.findAll();
   }
 
@@ -41,11 +42,11 @@ export class SubscriptionController {
   }
 
   @Patch(':userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Atribuir plano a um usuário (Admin)' })
-  assign(@Req() req: any, @Param('userId') userId: string, @Body() dto: AssignPlanDto) {
-    if (req.user.role !== 'ADMIN') throw new ForbiddenException();
+  assign(@Param('userId') userId: string, @Body() dto: AssignPlanDto) {
     return this.subscriptionService.assign(+userId, dto.planId);
   }
 }

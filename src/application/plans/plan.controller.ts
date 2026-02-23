@@ -7,14 +7,14 @@ import {
   Body,
   Param,
   UseGuards,
-  ForbiddenException,
-  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PlanService } from './plan.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { RolesGuard } from '../../auth/roles.guard';
+import { Roles } from '../../auth/roles.decorator';
 
 @ApiTags('Plans')
 @Controller('plans')
@@ -34,29 +34,29 @@ export class PlanController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Criar plano (Admin)' })
-  create(@Req() req: any, @Body() dto: CreatePlanDto) {
-    if (req.user.role !== 'ADMIN') throw new ForbiddenException();
+  create(@Body() dto: CreatePlanDto) {
     return this.planService.create(dto);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Atualizar plano (Admin)' })
-  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdatePlanDto) {
-    if (req.user.role !== 'ADMIN') throw new ForbiddenException();
+  update(@Param('id') id: string, @Body() dto: UpdatePlanDto) {
     return this.planService.update(+id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Remover plano (Admin)' })
-  remove(@Req() req: any, @Param('id') id: string) {
-    if (req.user.role !== 'ADMIN') throw new ForbiddenException();
+  remove(@Param('id') id: string) {
     return this.planService.remove(+id);
   }
 }
