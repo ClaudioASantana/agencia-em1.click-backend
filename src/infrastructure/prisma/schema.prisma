@@ -94,20 +94,21 @@ model Establishment {
   longitude    Float?
   locationId   Int
   segmentId    Int
-  showPrice    Boolean           @default(false)
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  location     Location          @relation(fields: [locationId], references: [id])
-  segment      Segment           @relation(fields: [segmentId], references: [id])
-  follows      Follow[]
-  offers       Offer[]
-  publications Publication[]
-  users        User[]            @relation("EstablishmentToUser")
-  analyticsEvents AnalyticsEvent[]
-  shareTokens     ShareToken[]
-  leads           Lead[]
-  qrImpulses      QrImpulse[]
-  encartes        Encarte[]
+  showPrice          Boolean           @default(false)
+  estandeSustentavel Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  location           Location          @relation(fields: [locationId], references: [id])
+  segment            Segment           @relation(fields: [segmentId], references: [id])
+  follows            Follow[]
+  offers             Offer[]
+  publications       Publication[]
+  users              User[]            @relation("EstablishmentToUser")
+  analyticsEvents    AnalyticsEvent[]
+  shareTokens        ShareToken[]
+  leads              Lead[]
+  qrImpulses         QrImpulse[]
+  encartes           Encarte[]
 }
 
 model Offer {
