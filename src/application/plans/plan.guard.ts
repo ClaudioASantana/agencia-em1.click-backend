@@ -16,10 +16,9 @@ export class PlanGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const resource = this.reflector.get<'publication' | 'offer' | 'establishment'>(
-      PLAN_RESOURCE_KEY,
-      context.getHandler(),
-    );
+    const resource = this.reflector.get<
+      'publication' | 'offer' | 'establishment'
+    >(PLAN_RESOURCE_KEY, context.getHandler());
 
     if (!resource) return true;
 
@@ -27,11 +26,10 @@ export class PlanGuard implements CanActivate {
     const userId: number = req.user?.userId;
 
     if (!userId) return true;
+    if (req.user?.role === 'ADMIN') return true;
 
-    const { allowed, limit, current } = await this.subscriptionService.checkLimit(
-      userId,
-      resource,
-    );
+    const { allowed, limit, current } =
+      await this.subscriptionService.checkLimit(userId, resource);
 
     if (!allowed) {
       throw new ForbiddenException({

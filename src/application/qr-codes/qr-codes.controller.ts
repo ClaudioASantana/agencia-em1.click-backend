@@ -72,10 +72,7 @@ export class QrCodesController {
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Adicionar slot ao template (Admin)' })
-  addSlot(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: CreateSlotDto,
-  ) {
+  addSlot(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateSlotDto) {
     return this.service.addSlot(id, dto);
   }
 
@@ -119,7 +116,28 @@ export class QrCodesController {
 
   @Get('my-impulses/:establishmentId')
   @ApiOperation({ summary: 'Ver impulses do estabelecimento do lojista' })
-  findMyImpulses(@Param('establishmentId', ParseIntPipe) establishmentId: number) {
+  findMyImpulses(
+    @Param('establishmentId', ParseIntPipe) establishmentId: number,
+  ) {
     return this.service.findImpulsesByEstablishment(establishmentId);
+  }
+
+  // ── Encartes (Admin) ───────────────────────────────────────────────────────
+
+  @Post('encartes')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Gerar encarte de QR (Admin)' })
+  generateEncarte(@Body() dto: any) {
+    // Use any or Import CreateEncarteDto
+    return this.service.generateEncarte(dto);
+  }
+
+  @Get('encartes')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Listar todos os encartes (Admin)' })
+  findAllEncartes() {
+    return this.service.findAllEncartes();
   }
 }

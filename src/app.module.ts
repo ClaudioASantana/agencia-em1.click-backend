@@ -23,6 +23,8 @@ import { AnalyticsModule } from './application/analytics/analytics.module';
 import { ShareTokenModule } from './application/share-token/share-token.module';
 import { LeadModule } from './application/lead/lead.module';
 import { QrCodesModule } from './application/qr-codes/qr-codes.module';
+import { SegmentsModule } from './application/segments/segments.module';
+import { LocationsModule } from './application/locations/locations.module';
 
 @Module({
   imports: [
@@ -49,11 +51,10 @@ import { QrCodesModule } from './application/qr-codes/qr-codes.module';
     ShareTokenModule,
     LeadModule,
     QrCodesModule,
+    SegmentsModule,
+    LocationsModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

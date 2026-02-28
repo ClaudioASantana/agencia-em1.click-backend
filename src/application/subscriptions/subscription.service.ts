@@ -37,6 +37,10 @@ export class SubscriptionService {
     resource: 'publication' | 'offer' | 'establishment',
     establishmentId?: number,
   ): Promise<{ allowed: boolean; limit: number; current: number }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (user?.role === 'ADMIN')
+      return { allowed: true, limit: 999, current: 0 };
+
     const plan = await this.getPlanByUserId(userId);
 
     if (resource === 'publication') {

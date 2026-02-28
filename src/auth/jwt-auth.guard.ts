@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
@@ -7,7 +7,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       console.error('❌ [JwtAuthGuard] Error:', err);
       console.error('❌ [JwtAuthGuard] Info:', info);
-      throw err || new Error('Unauthorized'); // Use simple Error to see if it causes 500 or caught by generic filter
+      throw err || new UnauthorizedException();
     }
     return user;
   }
