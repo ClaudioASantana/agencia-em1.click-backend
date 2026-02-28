@@ -140,4 +140,12 @@ export class QrCodesController {
   findAllEncartes() {
     return this.service.findAllEncartes();
   }
+
+  @Delete('encartes/:id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Remover encarte (Admin)' })
+  deleteEncarte(@Param('id', ParseIntPipe) id: number) {
+    return this.service.deleteEncarte(id);
+  }
 }

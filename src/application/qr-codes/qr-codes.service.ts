@@ -258,6 +258,12 @@ export class QrCodesService {
     });
   }
 
+  async deleteEncarte(id: number) {
+    return (this.prisma as any).encarte.delete({
+      where: { id },
+    });
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   private async generateStoreImages(
