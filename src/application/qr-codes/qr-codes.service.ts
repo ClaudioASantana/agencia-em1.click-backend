@@ -413,36 +413,29 @@ export class QrCodesService {
       locations[0]?.name || establishment.city || 'cidade',
     );
 
-    // Contexto de filtragem por agência/lojista (usado no modo STORES)
+    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
     const isLojistaMode = qrTemplate?.mode === 'STORES';
     const lojistaFilter = isLojistaMode ? `&agency=${slug}` : '';
 
     switch (targetType) {
       case 'STORE':
-        return `${baseUrl}/loja/${slug}`;
+        return `${cleanBaseUrl}/loja/${slug}`;
       case 'PROMOTIONS':
-        return `${baseUrl}/loja/${slug}/ofertas`;
+        return `${cleanBaseUrl}/loja/${slug}/ofertas`;
       case 'PUBLICATIONS':
-        return `${baseUrl}/loja/${slug}/publicacoes`;
+        return `${cleanBaseUrl}/loja/${slug}/publicacoes`;
       case 'CITY':
-        return `${baseUrl.replace(
-          /\/$/,
-          '',
-        )}/?location=${locationSlug}${lojistaFilter}`;
+        return `${cleanBaseUrl}/?location=${locationSlug}${lojistaFilter}`;
       case 'SEGMENT': {
         const segmentId = slot.segmentId || establishment.segmentId;
         const segments = await this.prisma.$queryRaw<
           any[]
         >`SELECT slug, name FROM "Segment" WHERE id = ${segmentId}`;
         const segmentSlug = encodeURIComponent(segments[0]?.name || '');
-        return `${baseUrl.replace(
-          /\/$/,
-          '',
-        )}/?location=${locationSlug}&segment=${segmentSlug}${lojistaFilter}`;
+        return `${cleanBaseUrl}/?location=${locationSlug}&segment=${segmentSlug}${lojistaFilter}`;
       }
       case 'USER_STORES': {
         const userId = establishment.users?.[0]?.id;
-        const cleanBaseUrl = baseUrl.replace(/\/$/, '');
         if (!userId) {
           // Fallback para a home se não houver usuário vinculado ao lojista
           return `${cleanBaseUrl}/catalog`;
@@ -450,7 +443,7 @@ export class QrCodesService {
         return `${cleanBaseUrl}/catalog?userId=${userId}`;
       }
       default:
-        return `${baseUrl}/loja/${slug}`;
+        return `${cleanBaseUrl}/loja/${slug}`;
     }
   }
 
