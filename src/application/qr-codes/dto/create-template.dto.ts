@@ -11,6 +11,7 @@ import {
 export enum QrTemplateMode {
   STORE = 'STORE',
   CITY_SEGMENT = 'CITY_SEGMENT',
+  STORES = 'STORES',
 }
 
 export class CreateTemplateDto {
@@ -37,4 +38,12 @@ export class CreateTemplateDto {
   @IsInt()
   @ValidateIf((o, v) => v !== null)
   locationId?: number | null;
+
+  @IsOptional()
+  @IsInt()
+  establishmentId?: number;
+
+  @IsOptional()
+  @IsInt({ each: true })
+  segmentIds?: number[];
 }

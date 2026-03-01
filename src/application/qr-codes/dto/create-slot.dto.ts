@@ -22,4 +22,8 @@ export class CreateSlotDto {
   @IsInt()
   @IsOptional()
   segmentId?: number;
+
+  @IsInt()
+  @IsOptional()
+  establishmentId?: number;
 }

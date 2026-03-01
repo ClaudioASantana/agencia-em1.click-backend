@@ -26,7 +26,11 @@ export class QrCodesService {
 
   async findAllTemplates() {
     return this.prisma.qrTemplate.findMany({
-      include: { slots: { orderBy: { position: 'asc' } }, location: true },
+      include: {
+        slots: { orderBy: { position: 'asc' } },
+        location: true,
+        establishment: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -34,7 +38,11 @@ export class QrCodesService {
   async findOneTemplate(id: number) {
     const template = await this.prisma.qrTemplate.findUnique({
       where: { id },
-      include: { slots: { orderBy: { position: 'asc' } }, location: true },
+      include: {
+        slots: { orderBy: { position: 'asc' } },
+        location: true,
+        establishment: true,
+      },
     });
     if (!template) throw new NotFoundException('Template não encontrado');
     return template;
@@ -75,6 +83,7 @@ export class QrCodesService {
         label: dto.label,
         targetType: dto.targetType,
         segmentId: dto.segmentId,
+        establishmentId: dto.establishmentId,
       },
     });
   }
@@ -88,20 +97,27 @@ export class QrCodesService {
   async createImpulse(dto: CreateImpulseDto) {
     const template = await this.findOneTemplate(dto.templateId);
 
+    const locationId = dto.locationId ?? template.locationId;
+    const establishmentId =
+      dto.establishmentId ?? (template as any).establishmentId;
+    const segmentIds = dto.segmentIds?.length
+      ? dto.segmentIds
+      : (template as any).segmentIds;
+
     if (template.mode === 'CITY_SEGMENT') {
-      if (!dto.locationId) {
+      if (!locationId) {
         throw new BadRequestException(
           'Selecione uma cidade para este template.',
         );
       }
-      if (!dto.segmentIds || dto.segmentIds.length === 0) {
+      if (!segmentIds || segmentIds.length === 0) {
         throw new BadRequestException('Selecione ao menos um segmento.');
       }
       return this.prisma.qrImpulse.create({
         data: {
           templateId: dto.templateId,
-          locationId: dto.locationId,
-          segmentIds: dto.segmentIds,
+          locationId: locationId,
+          segmentIds: segmentIds,
         },
         include: {
           template: { include: { slots: { orderBy: { position: 'asc' } } } },
@@ -110,8 +126,19 @@ export class QrCodesService {
       });
     }
 
+    if (template.mode === 'STORES') {
+      return this.prisma.qrImpulse.create({
+        data: {
+          templateId: dto.templateId,
+        },
+        include: {
+          template: { include: { slots: { orderBy: { position: 'asc' } } } },
+        },
+      });
+    }
+
     // Modo STORE
-    if (!dto.establishmentId) {
+    if (!establishmentId) {
       throw new BadRequestException(
         'Selecione um estabelecimento para este template.',
       );
@@ -119,7 +146,7 @@ export class QrCodesService {
     return this.prisma.qrImpulse.create({
       data: {
         templateId: dto.templateId,
-        establishmentId: dto.establishmentId,
+        establishmentId: establishmentId,
       },
       include: {
         template: { include: { slots: { orderBy: { position: 'asc' } } } },
@@ -170,6 +197,8 @@ export class QrCodesService {
 
     if (impulse.template.mode === 'CITY_SEGMENT') {
       await this.generateCitySegmentImages(impulse, vitrineUrl, images);
+    } else if (impulse.template.mode === 'STORES') {
+      await this.generateStoresImages(impulse, vitrineUrl, images);
     } else {
       await this.generateStoreImages(impulse, vitrineUrl, images);
     }
@@ -183,7 +212,7 @@ export class QrCodesService {
   }
 
   async generateEncarte(dto: any) {
-    const {
+    let {
       templateId,
       establishmentId,
       locationId,
@@ -194,6 +223,13 @@ export class QrCodesService {
 
     const template = await this.findOneTemplate(templateId);
     if (!template) throw new NotFoundException('Template não encontrado');
+
+    // Usar defaults do template se não fornecidos no dto
+    if (!locationId && template.locationId) locationId = template.locationId;
+    if (!establishmentId && (template as any).establishmentId)
+      establishmentId = (template as any).establishmentId;
+    if (!segmentIds?.length && (template as any).segmentIds)
+      segmentIds = (template as any).segmentIds;
 
     const vitrineUrl = this.config.get<string>(
       'VITRINE_URL',
@@ -215,10 +251,13 @@ export class QrCodesService {
         throw new NotFoundException('Estabelecimento não encontrado');
 
       await this.generateStoreImages(
-        { ...dto, template, establishment },
+        { ...dto, template, establishment, establishmentId },
         vitrineUrl,
         images,
       );
+    } else if (template.mode === 'STORES') {
+      // No modo STORES, usamos os estabelecimentos vinculados aos slots
+      await this.generateStoresImages({ template }, vitrineUrl, images);
     } else {
       if (!locationId)
         throw new BadRequestException(
@@ -277,6 +316,26 @@ export class QrCodesService {
         impulse.establishment,
         vitrineUrl,
       );
+      images[slot.position.toString()] = await this.makeQr(url);
+    }
+  }
+
+  private async generateStoresImages(
+    impulse: any,
+    vitrineUrl: string,
+    images: Record<string, string>,
+  ) {
+    for (const slot of impulse.template.slots) {
+      if (!slot.establishmentId) continue;
+
+      const establishment = await this.prisma.establishment.findUnique({
+        where: { id: slot.establishmentId },
+        include: { location: true },
+      });
+
+      if (!establishment) continue;
+
+      const url = await this.resolveStoreUrl(slot, establishment, vitrineUrl);
       images[slot.position.toString()] = await this.makeQr(url);
     }
   }

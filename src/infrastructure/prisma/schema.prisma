@@ -109,6 +109,8 @@ model Establishment {
   leads              Lead[]
   qrImpulses         QrImpulse[]
   encartes           Encarte[]
+  qrSlots            QrSlot[]
+  qrTemplates        QrTemplate[]
 }
 
 model Offer {
@@ -220,6 +222,7 @@ enum QrTargetType {
 enum QrTemplateMode {
   STORE
   CITY_SEGMENT
+  STORES
 }
 
 model QrTemplate {
@@ -229,8 +232,15 @@ model QrTemplate {
   totalSlots  Int
   mode        QrTemplateMode @default(STORE)
   active      Boolean        @default(true)
-  locationId  Int?
-  location    Location?      @relation(fields: [locationId], references: [id])
+  
+  // Novos campos para pré-vinculação
+  locationId      Int?
+  establishmentId Int?
+  segmentIds      Int[]          @default([])
+  
+  location      Location?      @relation(fields: [locationId], references: [id])
+  establishment Establishment? @relation(fields: [establishmentId], references: [id])
+  
   slots       QrSlot[]
   impulses    QrImpulse[]
   encartes    Encarte[]
@@ -245,8 +255,10 @@ model QrSlot {
   position   Int
   label      String
   targetType QrTargetType
-  segmentId  Int?
-  segment    Segment?     @relation(fields: [segmentId], references: [id])
+  segmentId       Int?
+  segment         Segment?       @relation(fields: [segmentId], references: [id])
+  establishmentId Int?
+  establishment   Establishment? @relation(fields: [establishmentId], references: [id])
   createdAt  DateTime     @default(now())
 
   @@unique([templateId, position])
