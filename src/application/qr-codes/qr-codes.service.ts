@@ -21,7 +21,22 @@ export class QrCodesService {
   // ── Templates ──────────────────────────────────────────────────────────────
 
   async createTemplate(dto: CreateTemplateDto) {
-    return this.prisma.qrTemplate.create({ data: dto });
+    const template = await this.prisma.qrTemplate.create({ data: dto });
+
+    // Se o modo for STORES, cria automaticamente o primeiro slot para as lojas do usuário
+    if (dto.mode === 'STORES') {
+      await this.prisma.qrSlot.create({
+        data: {
+          templateId: template.id,
+          position: 1,
+          label: 'Nossas Lojas',
+          targetType: 'USER_STORES',
+          establishmentId: dto.establishmentId,
+        },
+      });
+    }
+
+    return template;
   }
 
   async findAllTemplates() {
@@ -97,11 +112,11 @@ export class QrCodesService {
   async createImpulse(dto: CreateImpulseDto) {
     const template = await this.findOneTemplate(dto.templateId);
 
-    const locationId = dto.locationId ?? template.locationId;
+    const locationId = (dto as any).locationId ?? template.locationId;
     const establishmentId =
-      dto.establishmentId ?? (template as any).establishmentId;
-    const segmentIds = dto.segmentIds?.length
-      ? dto.segmentIds
+      (dto as any).establishmentId ?? (template as any).establishmentId;
+    const segmentIds = (dto as any).segmentIds?.length
+      ? (dto as any).segmentIds
       : (template as any).segmentIds;
 
     if (template.mode === 'CITY_SEGMENT') {
@@ -315,6 +330,7 @@ export class QrCodesService {
         slot,
         impulse.establishment,
         vitrineUrl,
+        impulse.template,
       );
       images[slot.position.toString()] = await this.makeQr(url);
     }
@@ -330,12 +346,17 @@ export class QrCodesService {
 
       const establishment = await this.prisma.establishment.findUnique({
         where: { id: slot.establishmentId },
-        include: { location: true },
+        include: { location: true, users: { select: { id: true } } },
       });
 
       if (!establishment) continue;
 
-      const url = await this.resolveStoreUrl(slot, establishment, vitrineUrl);
+      const url = await this.resolveStoreUrl(
+        slot,
+        establishment,
+        vitrineUrl,
+        impulse.template,
+      );
       images[slot.position.toString()] = await this.makeQr(url);
     }
   }
@@ -378,6 +399,7 @@ export class QrCodesService {
     slot: any,
     establishment: any,
     baseUrl: string,
+    qrTemplate?: any,
   ): Promise<string> {
     const targetType = slot.targetType;
     const slug = establishment.slug;
@@ -391,6 +413,10 @@ export class QrCodesService {
       locations[0]?.name || establishment.city || 'cidade',
     );
 
+    // Contexto de filtragem por agência/lojista (usado no modo STORES)
+    const isLojistaMode = qrTemplate?.mode === 'STORES';
+    const lojistaFilter = isLojistaMode ? `&agency=${slug}` : '';
+
     switch (targetType) {
       case 'STORE':
         return `${baseUrl}/loja/${slug}`;
@@ -399,14 +425,28 @@ export class QrCodesService {
       case 'PUBLICATIONS':
         return `${baseUrl}/loja/${slug}/publicacoes`;
       case 'CITY':
-        return `${baseUrl.replace(/\/$/, '')}/?location=${locationSlug}`;
+        return `${baseUrl.replace(
+          /\/$/,
+          '',
+        )}/?location=${locationSlug}${lojistaFilter}`;
       case 'SEGMENT': {
         const segmentId = slot.segmentId || establishment.segmentId;
         const segments = await this.prisma.$queryRaw<
           any[]
         >`SELECT slug, name FROM "Segment" WHERE id = ${segmentId}`;
         const segmentSlug = encodeURIComponent(segments[0]?.name || '');
-        return `${baseUrl.replace(/\/$/, '')}/?location=${locationSlug}&segment=${segmentSlug}`;
+        return `${baseUrl.replace(
+          /\/$/,
+          '',
+        )}/?location=${locationSlug}&segment=${segmentSlug}${lojistaFilter}`;
+      }
+      case 'USER_STORES': {
+        const userId = establishment.users?.[0]?.id;
+        if (!userId) {
+          // Fallback para a home se não houver usuário vinculado ao lojista
+          return `${baseUrl}/catalog`;
+        }
+        return `${baseUrl}/catalog?userId=${userId}`;
       }
       default:
         return `${baseUrl}/loja/${slug}`;

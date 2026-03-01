@@ -5,6 +5,7 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -31,8 +32,8 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Get all users (Admin)' })
   @ApiResponse({ status: 200, description: 'Return all users.' })
-  async findAll() {
-    return this.usersService.findAll();
+  async findAll(@Query('role') role?: string) {
+    return this.usersService.findAll(role);
   }
 
   @Post()

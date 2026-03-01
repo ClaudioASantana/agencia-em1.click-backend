@@ -35,15 +35,27 @@ export class EstablishmentController {
   @ApiQuery({ name: 'location', required: false })
   @ApiQuery({ name: 'segment', required: false })
   @ApiQuery({ name: 'followed', required: false, type: Boolean })
+  @ApiQuery({ name: 'isAgency', required: false, type: Boolean })
+  @ApiQuery({ name: 'userId', required: false, type: Number })
   findAll(
     @Query('location') location?: string,
     @Query('segment') segment?: string,
     @Query('followed') followed?: string,
+    @Query('isAgency') isAgency?: string,
+    @Query('userId') userIdParam?: string,
     @Req() req?: any,
   ) {
     const isFollowed = followed === 'true';
-    const userId = req?.user?.userId;
-    return this.establishmentService.findAll(location, segment, userId, isFollowed);
+    const isAgencySelected =
+      isAgency === 'true' ? true : isAgency === 'false' ? false : undefined;
+    const userId = userIdParam ? Number(userIdParam) : req?.user?.userId;
+    return this.establishmentService.findAll(
+      location,
+      segment,
+      userId,
+      isFollowed,
+      isAgencySelected,
+    );
   }
 
   @Post()
@@ -59,8 +71,11 @@ export class EstablishmentController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List all establishments (Admin only)' })
-  async findAllAdmin() {
-    return this.establishmentService.findAllAdmin();
+  @ApiQuery({ name: 'isAgency', required: false, type: Boolean })
+  async findAllAdmin(@Query('isAgency') isAgency?: string) {
+    const isAgencySelected =
+      isAgency === 'true' ? true : isAgency === 'false' ? false : undefined;
+    return this.establishmentService.findAllAdmin(isAgencySelected);
   }
 
   @Get('me')
@@ -93,7 +108,9 @@ export class EstablishmentController {
   async updateMe(@Req() req: any, @Body() updateDto: UpdateEstablishmentDto) {
     const estId = req.user.establishmentId;
     if (!estId) {
-      throw new ForbiddenException('User is not associated with an establishment');
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
     }
     return this.establishmentService.update(estId, updateDto);
   }
@@ -101,7 +118,9 @@ export class EstablishmentController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a specific establishment by ID (Owner only)' })
+  @ApiOperation({
+    summary: 'Update a specific establishment by ID (Owner only)',
+  })
   async updateMyUnit(
     @Req() req: any,
     @Param('id') id: string,
@@ -112,7 +131,9 @@ export class EstablishmentController {
     const myUnits = await this.establishmentService.findByUserId(userId);
     const isOwner = myUnits.some((e) => e.id === establishmentId);
     if (!isOwner) {
-      throw new ForbiddenException('You do not have permission to update this establishment');
+      throw new ForbiddenException(
+        'You do not have permission to update this establishment',
+      );
     }
     return this.establishmentService.update(establishmentId, updateDto);
   }
@@ -124,7 +145,9 @@ export class EstablishmentController {
   async getMyStats(@Req() req: any) {
     const estId = req.user.establishmentId;
     if (!estId) {
-      throw new ForbiddenException('User is not associated with an establishment');
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
     }
     return this.establishmentService.getStats(estId);
   }

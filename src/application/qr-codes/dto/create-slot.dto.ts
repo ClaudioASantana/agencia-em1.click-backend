@@ -6,6 +6,7 @@ export enum QrTargetType {
   PUBLICATIONS = 'PUBLICATIONS',
   CITY = 'CITY',
   SEGMENT = 'SEGMENT',
+  USER_STORES = 'USER_STORES',
 }
 
 export class CreateSlotDto {

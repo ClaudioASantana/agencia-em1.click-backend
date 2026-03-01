@@ -90,8 +90,14 @@ export class UsersService {
     return user;
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(role?: string): Promise<User[]> {
+    const where: Prisma.UserWhereInput = {};
+    if (role) {
+      where.role = role;
+    }
+
     const users = await this.prisma.user.findMany({
+      where,
       select: {
         id: true,
         email: true,
