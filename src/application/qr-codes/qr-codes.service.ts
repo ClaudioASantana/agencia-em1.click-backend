@@ -444,9 +444,8 @@ export class QrCodesService {
         const userId = establishment.users?.[0]?.id;
         if (!userId) {
           // Fallback para a home se não houver usuário vinculado ao lojista
-          return `${baseUrl}/catalog`;
-        }
-        return `${baseUrl}/catalog?userId=${userId}`;
+        const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+        return `${cleanBaseUrl}/catalog?userId=${userId}`;
       }
       default:
         return `${baseUrl}/loja/${slug}`;
