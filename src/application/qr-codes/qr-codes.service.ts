@@ -442,9 +442,11 @@ export class QrCodesService {
       }
       case 'USER_STORES': {
         const userId = establishment.users?.[0]?.id;
+        const cleanBaseUrl = baseUrl.replace(/\/$/, '');
         if (!userId) {
           // Fallback para a home se não houver usuário vinculado ao lojista
-        const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+          return `${cleanBaseUrl}/catalog`;
+        }
         return `${cleanBaseUrl}/catalog?userId=${userId}`;
       }
       default:
