@@ -401,21 +401,25 @@ export class QrCodesService {
     baseUrl: string,
     qrTemplate?: any,
   ): Promise<string> {
+    const cleanBaseUrl = baseUrl.trim().replace(/\/$/, '');
     const targetType = slot.targetType;
-    const slug = establishment.slug;
+    const slug = establishment?.slug;
 
     // Get location slug
-    const locationId = establishment.locationId;
-    const locations = await this.prisma.$queryRaw<
-      any[]
-    >`SELECT slug, name FROM "Location" WHERE id = ${locationId}`;
-    const locationSlug = encodeURIComponent(
-      locations[0]?.name || establishment.city || 'cidade',
-    );
+    // Try establishment location first, then template location
+    const locationId = establishment?.locationId || qrTemplate?.locationId;
+    let locationSlug = 'cidade';
+    if (locationId) {
+      const locations = await this.prisma.$queryRaw<
+        any[]
+      >`SELECT slug, name FROM "Location" WHERE id = ${locationId}`;
+      locationSlug = encodeURIComponent(
+        locations[0]?.name || establishment?.city || 'cidade',
+      );
+    }
 
-    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
     const isLojistaMode = qrTemplate?.mode === 'STORES';
-    const lojistaFilter = isLojistaMode ? `&agency=${slug}` : '';
+    const lojistaFilter = isLojistaMode && slug ? `&agency=${slug}` : '';
 
     switch (targetType) {
       case 'STORE':
@@ -427,7 +431,8 @@ export class QrCodesService {
       case 'CITY':
         return `${cleanBaseUrl}/?location=${locationSlug}${lojistaFilter}`;
       case 'SEGMENT': {
-        const segmentId = slot.segmentId || establishment.segmentId;
+        const segmentId =
+          slot.segmentId || establishment?.segmentId || qrTemplate?.segmentId;
         const segments = await this.prisma.$queryRaw<
           any[]
         >`SELECT slug, name FROM "Segment" WHERE id = ${segmentId}`;
@@ -435,9 +440,18 @@ export class QrCodesService {
         return `${cleanBaseUrl}/?location=${locationSlug}&segment=${segmentSlug}${lojistaFilter}`;
       }
       case 'USER_STORES': {
-        const userId = establishment.users?.[0]?.id;
+        let userId = establishment?.users?.[0]?.id;
+
+        // Se o estabelecimento não foi passado com usuários, tenta buscar
+        if (!userId && establishment?.id) {
+          const estWithUsers = await this.prisma.establishment.findUnique({
+            where: { id: establishment.id },
+            include: { users: { select: { id: true } } },
+          });
+          userId = estWithUsers?.users?.[0]?.id;
+        }
+
         if (!userId) {
-          // Fallback para a home se não houver usuário vinculado ao lojista
           return `${cleanBaseUrl}/catalog`;
         }
         return `${cleanBaseUrl}/catalog?userId=${userId}`;
