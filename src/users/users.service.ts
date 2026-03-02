@@ -139,4 +139,28 @@ export class UsersService {
       data: prismaUpdate,
     });
   }
+
+  async findLojistas() {
+    return this.prisma.user.findMany({
+      where: {
+        role: 'STORE',
+        establishments: {
+          some: {},
+        },
+        active: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        establishments: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
 }
