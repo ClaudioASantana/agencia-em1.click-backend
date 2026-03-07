@@ -454,7 +454,7 @@ export class QrCodesService {
         if (!userId) {
           return `${cleanBaseUrl}/`;
         }
-        return `${cleanBaseUrl}/?userId=${userId}`;
+        return `${cleanBaseUrl}/unidades/${userId}`;
       }
       default:
         return `${cleanBaseUrl}/loja/${slug}`;

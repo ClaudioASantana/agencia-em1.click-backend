@@ -78,6 +78,12 @@ export class EstablishmentService {
       include: {
         location: true,
         segment: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         offers: {
           where: {
             active: true,

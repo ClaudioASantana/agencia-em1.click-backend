@@ -59,8 +59,8 @@ async function resolveStoreUrl(
         userId = estWithUsers?.users?.[0]?.id;
       }
 
-      if (!userId) return `${cleanBaseUrl}/catalog`;
-      return `${cleanBaseUrl}/catalog?userId=${userId}`;
+      if (!userId) return `${cleanBaseUrl}/`;
+      return `${cleanBaseUrl}/unidades/${userId}`;
     }
     default:
       return `${cleanBaseUrl}/loja/${slug}`;
