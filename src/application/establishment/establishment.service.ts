@@ -43,6 +43,7 @@ export class EstablishmentService {
     segment?: string,
     userId?: number,
     followed?: boolean,
+    isAgency?: boolean,
   ) {
     const where: any = {};
 
@@ -51,6 +52,17 @@ export class EstablishmentService {
     }
     if (segment) {
       where.segment = { name: segment };
+    }
+    if (isAgency !== undefined) {
+      where.isAgency = isAgency;
+    }
+
+    if (userId && !followed) {
+      where.users = {
+        some: {
+          id: userId,
+        },
+      };
     }
 
     if (followed && userId) {
@@ -66,6 +78,12 @@ export class EstablishmentService {
       include: {
         location: true,
         segment: true,
+        users: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         offers: {
           where: {
             active: true,
@@ -184,8 +202,14 @@ export class EstablishmentService {
       specialties: updated.specialties ? JSON.parse(updated.specialties) : [],
     };
   }
-  async findAllAdmin() {
+  async findAllAdmin(isAgency?: boolean) {
+    const where: any = {};
+    if (isAgency !== undefined) {
+      where.isAgency = isAgency;
+    }
+
     return this.prisma.establishment.findMany({
+      where,
       include: {
         location: true,
         segment: true,
@@ -224,6 +248,7 @@ export class EstablishmentService {
         ...otherData,
         slug: slug + '-' + Math.floor(Math.random() * 1000), // Ensure Uniqueness
         specialties: specialties ? JSON.stringify(specialties) : '[]',
+        isAgency: data.isAgency || false,
         location: { connect: { id: finalLocationId } },
         segment: { connect: { id: finalSegmentId } },
         // Link the creating user!

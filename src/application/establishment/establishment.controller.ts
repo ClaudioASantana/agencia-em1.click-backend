@@ -21,6 +21,8 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../auth/optional-jwt-auth.guard';
 import { CreateEstablishmentDto } from './dto/create-establishment.dto';
 import { UpdateEstablishmentDto } from './dto/update-establishment.dto';
+import { PlanGuard } from '../plans/plan.guard';
+import { PlanResource } from '../plans/plan-resource.decorator';
 
 @ApiTags('Establishment')
 @Controller('establishments')
@@ -33,24 +35,32 @@ export class EstablishmentController {
   @ApiQuery({ name: 'location', required: false })
   @ApiQuery({ name: 'segment', required: false })
   @ApiQuery({ name: 'followed', required: false, type: Boolean })
+  @ApiQuery({ name: 'isAgency', required: false, type: Boolean })
+  @ApiQuery({ name: 'userId', required: false, type: Number })
   findAll(
     @Query('location') location?: string,
     @Query('segment') segment?: string,
     @Query('followed') followed?: string,
+    @Query('isAgency') isAgency?: string,
+    @Query('userId') userIdParam?: string,
     @Req() req?: any,
   ) {
     const isFollowed = followed === 'true';
-    const userId = req?.user?.userId;
+    const isAgencySelected =
+      isAgency === 'true' ? true : isAgency === 'false' ? false : undefined;
+    const userId = userIdParam ? Number(userIdParam) : req?.user?.userId;
     return this.establishmentService.findAll(
       location,
       segment,
       userId,
       isFollowed,
+      isAgencySelected,
     );
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PlanGuard)
+  @PlanResource('establishment')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new establishment' })
   async create(@Req() req: any, @Body() createDto: CreateEstablishmentDto) {
@@ -61,8 +71,11 @@ export class EstablishmentController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List all establishments (Admin only)' })
-  async findAllAdmin() {
-    return this.establishmentService.findAllAdmin();
+  @ApiQuery({ name: 'isAgency', required: false, type: Boolean })
+  async findAllAdmin(@Query('isAgency') isAgency?: string) {
+    const isAgencySelected =
+      isAgency === 'true' ? true : isAgency === 'false' ? false : undefined;
+    return this.establishmentService.findAllAdmin(isAgencySelected);
   }
 
   @Get('me')
@@ -70,9 +83,7 @@ export class EstablishmentController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get my establishment details' })
   async findMe(@Req() req: any) {
-    // Assuming the establishmentId is in the user payload from JWT
     const estId = req.user.establishmentId;
-    // We might need a method to find by ID
     return this.establishmentService.findById(estId);
   }
 
@@ -103,6 +114,7 @@ export class EstablishmentController {
     }
     return this.establishmentService.update(estId, updateDto);
   }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -116,17 +128,13 @@ export class EstablishmentController {
   ) {
     const userId = req.user.userId;
     const establishmentId = Number(id);
-
-    // Verify ownership
     const myUnits = await this.establishmentService.findByUserId(userId);
     const isOwner = myUnits.some((e) => e.id === establishmentId);
-
     if (!isOwner) {
       throw new ForbiddenException(
         'You do not have permission to update this establishment',
       );
     }
-
     return this.establishmentService.update(establishmentId, updateDto);
   }
 

@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
   Req,
-  ForbiddenException,
 } from '@nestjs/common';
 import { OfferService } from './offer.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
@@ -21,6 +20,8 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { PlanGuard } from '../plans/plan.guard';
+import { PlanResource } from '../plans/plan-resource.decorator';
 
 @ApiTags('Offer')
 @Controller('offers')
@@ -28,14 +29,11 @@ export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PlanGuard)
+  @PlanResource('offer')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new offer' })
   async create(@Req() req: any, @Body() createOfferDto: CreateOfferDto) {
-    // Optional: Verify if user owns the establishment
-    // const userEstId = req.user.establishmentId;
-    // if (userEstId !== createOfferDto.establishmentId) throw new ForbiddenException();
-
     return this.offerService.create(createOfferDto);
   }
 
@@ -66,15 +64,17 @@ export class OfferController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update an offer' })
-  update(@Param('id') id: string, @Body() updateOfferDto: UpdateOfferDto) {
-    return this.offerService.update(+id, updateOfferDto);
+  update(@Param('id') id: string, @Req() req: any, @Body() updateOfferDto: UpdateOfferDto) {
+    const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
+    return this.offerService.update(+id, updateOfferDto, userId);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete an offer' })
-  remove(@Param('id') id: string) {
-    return this.offerService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
+    return this.offerService.remove(+id, userId);
   }
 }

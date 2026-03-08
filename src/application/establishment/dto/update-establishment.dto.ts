@@ -106,4 +106,12 @@ export class UpdateEstablishmentDto {
   @IsOptional()
   @IsBoolean()
   showPrice?: boolean;
+
+  @ApiProperty({
+    description: 'Is this establishment an agency/brand?',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAgency?: boolean;
 }

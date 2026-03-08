@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
@@ -146,20 +146,41 @@ export class OfferService {
     return offer;
   }
 
-  async update(id: number, updateOfferDto: UpdateOfferDto) {
+  async update(id: number, updateOfferDto: UpdateOfferDto, userId?: number) {
     const { establishmentId, ...data } = updateOfferDto;
-    // Note: Changing establishmentId is usually not allowed or needs checks,
-    // but ignoring strict check for now unless requested.
 
-    return this.prisma.offer.update({
-      where: { id },
-      data: data,
-    });
+    if (userId) {
+      const offer = await this.prisma.offer.findUnique({
+        where: { id },
+        select: { establishmentId: true },
+      });
+      if (!offer) throw new NotFoundException(`Offer with ID ${id} not found`);
+
+      const owns = await this.prisma.establishment.findFirst({
+        where: { id: offer.establishmentId, users: { some: { id: userId } } },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Sem permissão para editar esta oferta');
+    }
+
+    return this.prisma.offer.update({ where: { id }, data });
   }
 
-  async remove(id: number) {
-    return this.prisma.offer.delete({
-      where: { id },
-    });
+  async remove(id: number, userId?: number) {
+    if (userId) {
+      const offer = await this.prisma.offer.findUnique({
+        where: { id },
+        select: { establishmentId: true },
+      });
+      if (!offer) throw new NotFoundException(`Offer with ID ${id} not found`);
+
+      const owns = await this.prisma.establishment.findFirst({
+        where: { id: offer.establishmentId, users: { some: { id: userId } } },
+        select: { id: true },
+      });
+      if (!owns) throw new ForbiddenException('Sem permissão para excluir esta oferta');
+    }
+
+    return this.prisma.offer.delete({ where: { id } });
   }
 }

@@ -8,71 +8,114 @@ datasource db {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  email          String          @unique
-  password       String
-  name           String?
-  role           String          @default("STORE_OWNER")
-  active         Boolean         @default(true)
-  createdAt      DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  resetToken        String?
-  resetTokenExpires DateTime?
-  follows           Follow[]
-  establishments    Establishment[] @relation("EstablishmentToUser")
+  id                 Int             @id @default(autoincrement())
+  email              String          @unique
+  password           String
+  name               String?
+  role               String          @default("STORE_OWNER")
+  active             Boolean         @default(true)
+  emailVerified      Boolean         @default(false)
+  verificationToken  String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  resetToken         String?
+  resetTokenExpires  DateTime?
+  notificationOptOut Boolean         @default(false)
+  follows            Follow[]
+  establishments     Establishment[] @relation("EstablishmentToUser")
+  subscription       Subscription?
+}
+
+model Plan {
+  id                Int            @id @default(autoincrement())
+  name              String         @unique
+  price             Float          @default(0)
+  maxPublications   Int            @default(1)
+  maxOffersPerPub   Int            @default(5)
+  maxEstablishments Int            @default(1)
+  allowsHighlight   Boolean        @default(false)
+  allowsAnalytics   Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  subscriptions     Subscription[]
+}
+
+model Subscription {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
+  planId    Int
+  status    String    @default("ACTIVE")
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan      Plan      @relation(fields: [planId], references: [id])
 }
 
 model Location {
   id             Int             @id @default(autoincrement())
   name           String          @unique
+  slug           String?         @unique
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   establishments Establishment[]
+  qrImpulses     QrImpulse[]
+  qrTemplates    QrTemplate[]
+  encartes       Encarte[]
 }
 
 model Segment {
   id             Int             @id @default(autoincrement())
   name           String          @unique
+  slug           String?         @unique
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   establishments Establishment[]
+  qrSlots        QrSlot[]
 }
 
 model Establishment {
-  id           Int           @id @default(autoincrement())
-  slug         String        @unique
-  name         String
-  description  String?
-  image        String?
-  logo         String?
-  rating       Float?        @default(0)
-  phone        String?
-  whatsapp     String?
-  address      String?
-  state        String?
-  city         String?
-  hours        String?
-  specialties  String?
-  instagram    String?
-  facebook     String?
-  website      String?
-  latitude     Float?
-  longitude    Float?
-  locationId   Int
-  segmentId    Int
-  showPrice    Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  location     Location      @relation(fields: [locationId], references: [id])
-  segment      Segment       @relation(fields: [segmentId], references: [id])
-  follows      Follow[]
-  offers       Offer[]
-  publications Publication[]
-  users        User[]        @relation("EstablishmentToUser")
+  id                 Int              @id @default(autoincrement())
+  slug               String           @unique
+  name               String
+  description        String?
+  image              String?
+  logo               String?
+  rating             Float?           @default(0)
+  phone              String?
+  whatsapp           String?
+  address            String?
+  state              String?
+  city               String?
+  hours              String?
+  specialties        String?
+  instagram          String?
+  facebook           String?
+  website            String?
+  latitude           Float?
+  longitude          Float?
+  locationId         Int
+  segmentId          Int
+  showPrice          Boolean          @default(false)
+  isAgency           Boolean          @default(false)
+  estandeSustentavel Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  location           Location         @relation(fields: [locationId], references: [id])
+  segment            Segment          @relation(fields: [segmentId], references: [id])
+  follows            Follow[]
+  offers             Offer[]
+  publications       Publication[]
+  users              User[]           @relation("EstablishmentToUser")
+  analyticsEvents    AnalyticsEvent[]
+  shareTokens        ShareToken[]
+  leads              Lead[]
+  qrImpulses         QrImpulse[]
+  encartes           Encarte[]
+  qrSlots            QrSlot[]
+  qrTemplates        QrTemplate[]
 }
 
 model Offer {
-  id                 Int           @id @default(autoincrement())
+  id                 Int              @id @default(autoincrement())
   title              String
   slug               String?
   description        String?
@@ -80,31 +123,38 @@ model Offer {
   originalPrice      String?
   discountPercentage Float?
   image              String?
-  active             Boolean       @default(true)
-  highlight          Boolean       @default(false)
+  active             Boolean          @default(true)
+  highlight          Boolean          @default(false)
   startDate          DateTime?
   endDate            DateTime?
   establishmentId    Int
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
   publicationId      Int?
-  establishment      Establishment @relation(fields: [establishmentId], references: [id])
-  publication        Publication?  @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  establishment      Establishment    @relation(fields: [establishmentId], references: [id])
+  publication        Publication?     @relation("PublicationOffers", fields: [publicationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  analyticsEvents    AnalyticsEvent[]
+
+  @@index([establishmentId])
+  @@index([establishmentId, active])
 }
 
 model Publication {
-  id              Int           @id @default(autoincrement())
-  title           String
-  description     String?
-  status          String        @default("DRAFT")
-  startDate       DateTime?
-  endDate         DateTime?
-  priority        String        @default("Média")
-  establishmentId Int
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  offers          Offer[]       @relation("PublicationOffers")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                Int                @id @default(autoincrement())
+  title             String
+  description       String?
+  status            String             @default("DRAFT")
+  startDate         DateTime?
+  endDate           DateTime?
+  priority          String             @default("Média")
+  establishmentId   Int
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  offers            Offer[]            @relation("PublicationOffers")
+  establishment     Establishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  leadNotifications LeadNotification[]
+
+  @@index([establishmentId, status])
 }
 
 model Follow {
@@ -116,4 +166,150 @@ model Follow {
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId])
+  @@index([establishmentId])
+}
+
+model ShareToken {
+  id              Int           @id @default(autoincrement())
+  token           String        @unique
+  establishmentId Int
+  clickCount      Int           @default(0)
+  createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  leads           Lead[]
+
+  @@index([establishmentId])
+}
+
+model Lead {
+  id              Int                @id @default(autoincrement())
+  phone           String
+  establishmentId Int
+  shareTokenId    Int?
+  consentAt       DateTime           @default(now())
+  consentText     String
+  active          Boolean            @default(true)
+  unsubscribedAt  DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  establishment   Establishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  shareToken      ShareToken?        @relation(fields: [shareTokenId], references: [id], onDelete: SetNull)
+  notifications   LeadNotification[]
+
+  @@unique([phone, establishmentId])
+  @@index([establishmentId, active])
+}
+
+model LeadNotification {
+  id            Int         @id @default(autoincrement())
+  leadId        Int
+  publicationId Int
+  status        String      @default("PENDING") // PENDING | SENT | FAILED
+  sentAt        DateTime    @default(now())
+  lead          Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@unique([leadId, publicationId])
+}
+
+enum QrTargetType {
+  STORE
+  PROMOTIONS
+  PUBLICATIONS
+  CITY
+  SEGMENT
+  USER_STORES
+}
+
+enum QrTemplateMode {
+  STORE
+  CITY_SEGMENT
+  STORES
+}
+
+model QrTemplate {
+  id          Int            @id @default(autoincrement())
+  name        String
+  description String?
+  totalSlots  Int
+  mode        QrTemplateMode @default(STORE)
+  active      Boolean        @default(true)
+
+  // Novos campos para pré-vinculação
+  locationId      Int?
+  establishmentId Int?
+  segmentIds      Int[] @default([])
+
+  location      Location?      @relation(fields: [locationId], references: [id])
+  establishment Establishment? @relation(fields: [establishmentId], references: [id])
+
+  slots     QrSlot[]
+  impulses  QrImpulse[]
+  encartes  Encarte[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model QrSlot {
+  id              Int            @id @default(autoincrement())
+  templateId      Int
+  template        QrTemplate     @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  position        Int
+  label           String
+  targetType      QrTargetType
+  segmentId       Int?
+  segment         Segment?       @relation(fields: [segmentId], references: [id])
+  establishmentId Int?
+  establishment   Establishment? @relation(fields: [establishmentId], references: [id])
+  createdAt       DateTime       @default(now())
+
+  @@unique([templateId, position])
+}
+
+model QrImpulse {
+  id              Int            @id @default(autoincrement())
+  templateId      Int
+  establishmentId Int?
+  locationId      Int?
+  segmentIds      Int[]
+  establishment   Establishment? @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  location        Location?      @relation(fields: [locationId], references: [id])
+  template        QrTemplate     @relation(fields: [templateId], references: [id])
+  generatedAt     DateTime?
+  images          Json?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model AnalyticsEvent {
+  id              Int           @id @default(autoincrement())
+  eventType       String
+  establishmentId Int
+  offerId         Int?
+  sessionId       String?
+  createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  offer           Offer?        @relation(fields: [offerId], references: [id], onDelete: SetNull)
+
+  @@index([establishmentId, eventType, createdAt])
+}
+
+model Encarte {
+  id              Int            @id @default(autoincrement())
+  titulo          String
+  descricao       String?
+  dataValidade    DateTime?
+  imagemCapaUrl   String?
+  locationId      Int?
+  location        Location?      @relation(fields: [locationId], references: [id])
+  templateId      Int?
+  template        QrTemplate?    @relation(fields: [templateId], references: [id])
+  establishmentId Int?
+  establishment   Establishment? @relation(fields: [establishmentId], references: [id])
+  qrCodes         Json? // Stores generated base64 images or metadata
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([locationId])
+  @@index([establishmentId])
 }
