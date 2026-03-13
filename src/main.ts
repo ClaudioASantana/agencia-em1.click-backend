@@ -15,6 +15,8 @@ async function bootstrap() {
       'http://store.amorimdev.cloud',
       'https://store.amorimdev.cloud',
       'https://api.amorimdev.cloud',
+      'https://idreau.com.br',
+      'http://idreau.com.br',
       /http:\/\/localhost:\d+$/,
       /https:\/\/localhost:\d+$/,
     ],
