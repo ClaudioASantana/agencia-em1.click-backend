@@ -54,6 +54,7 @@ model Location {
   id             Int             @id @default(autoincrement())
   name           String          @unique
   slug           String?         @unique
+  description    String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   establishments Establishment[]
@@ -112,6 +113,10 @@ model Establishment {
   encartes           Encarte[]
   qrSlots            QrSlot[]
   qrTemplates        QrTemplate[]
+
+  @@index([locationId])
+  @@index([segmentId])
+  @@index([city])
 }
 
 model Offer {
