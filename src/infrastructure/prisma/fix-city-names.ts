@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Normalize Itaguaí variants
-  const itaguaiResult = await prisma.establishment.updateMany({
+  const itaguaiResult = await prisma.location.updateMany({
     where: {
       city: { in: ['ITAGUAI', 'itaguai', 'Itaguai'] },
     },
@@ -13,7 +13,7 @@ async function main() {
   console.log(`✅ Itaguaí: ${itaguaiResult.count} records updated`);
 
   // Normalize Seropédica variants
-  const seropedicaResult = await prisma.establishment.updateMany({
+  const seropedicaResult = await prisma.location.updateMany({
     where: {
       city: {
         in: [
@@ -32,7 +32,7 @@ async function main() {
   console.log(`✅ Seropédica: ${seropedicaResult.count} records updated`);
 
   // Verify
-  const cities = await prisma.establishment.groupBy({
+  const cities = await prisma.location.groupBy({
     by: ['city'],
     _count: true,
     orderBy: { city: 'asc' },

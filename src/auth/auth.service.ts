@@ -196,7 +196,6 @@ export class AuthService {
       console.error('Failed to send reset password email:', error?.message);
     }
 
-    console.log(`Reset token for ${email}: ${token}`);
     return {
       message: 'Se o e-mail existir, um link de recuperação foi enviado.',
     };

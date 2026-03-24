@@ -18,37 +18,59 @@ export class AnalyticsService {
     const days = period === '7d' ? 7 : 30;
     const since = startOfDay(subDays(new Date(), days - 1));
 
-    const [storeViews, offerViews, whatsappClicks, followers, offerViewsByOffer, rawTimeline] =
-      await Promise.all([
-        this.prisma.analyticsEvent.count({
-          where: { establishmentId, eventType: 'store_view', createdAt: { gte: since } },
-        }),
-        this.prisma.analyticsEvent.count({
-          where: { establishmentId, eventType: 'offer_view', createdAt: { gte: since } },
-        }),
-        this.prisma.analyticsEvent.count({
-          where: { establishmentId, eventType: 'whatsapp_click', createdAt: { gte: since } },
-        }),
-        this.prisma.follow.count({ where: { establishmentId } }),
-        // top offers by view count
-        this.prisma.analyticsEvent.groupBy({
-          by: ['offerId'],
-          where: {
-            establishmentId,
-            eventType: 'offer_view',
-            offerId: { not: null },
-            createdAt: { gte: since },
-          },
-          _count: { offerId: true },
-          orderBy: { _count: { offerId: 'desc' } },
-          take: 5,
-        }),
-        // raw events for timeline
-        this.prisma.analyticsEvent.findMany({
-          where: { establishmentId, eventType: 'store_view', createdAt: { gte: since } },
-          select: { createdAt: true },
-        }),
-      ]);
+    const [
+      storeViews,
+      offerViews,
+      whatsappClicks,
+      followers,
+      offerViewsByOffer,
+      rawTimeline,
+    ] = await Promise.all([
+      this.prisma.analyticsEvent.count({
+        where: {
+          establishmentId,
+          eventType: 'store_view',
+          createdAt: { gte: since },
+        },
+      }),
+      this.prisma.analyticsEvent.count({
+        where: {
+          establishmentId,
+          eventType: 'offer_view',
+          createdAt: { gte: since },
+        },
+      }),
+      this.prisma.analyticsEvent.count({
+        where: {
+          establishmentId,
+          eventType: 'whatsapp_click',
+          createdAt: { gte: since },
+        },
+      }),
+      this.prisma.follow.count({ where: { establishmentId } }),
+      // top offers by view count
+      this.prisma.analyticsEvent.groupBy({
+        by: ['offerId'],
+        where: {
+          establishmentId,
+          eventType: 'offer_view',
+          offerId: { not: null },
+          createdAt: { gte: since },
+        },
+        _count: { offerId: true },
+        orderBy: { _count: { offerId: 'desc' } },
+        take: 5,
+      }),
+      // raw events for timeline
+      this.prisma.analyticsEvent.findMany({
+        where: {
+          establishmentId,
+          eventType: 'store_view',
+          createdAt: { gte: since },
+        },
+        select: { createdAt: true },
+      }),
+    ]);
 
     // Build daily timeline
     const timelineMap = new Map<string, number>();

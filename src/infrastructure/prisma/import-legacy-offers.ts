@@ -79,7 +79,9 @@ async function main() {
     });
   }
 
-  console.log(`📊 Found ${legacyOffers.length} products from active promotions\n`);
+  console.log(
+    `📊 Found ${legacyOffers.length} products from active promotions\n`,
+  );
 
   // 2. Load all establishments from PostgreSQL
   const establishments = await prisma.establishment.findMany({
@@ -108,7 +110,7 @@ async function main() {
 
   for (const offer of legacyOffers) {
     // Try slug suffix match first, then name match
-    let establishmentId =
+    const establishmentId =
       slugSuffixMap.get(offer.LegacyUsuarioId) ??
       nameMap.get(offer.LegacyLoja.toUpperCase());
 
@@ -170,9 +172,7 @@ async function main() {
   console.log(`   Já existiam (pulados): ${skipped}`);
   console.log(`   Loja não encontrada: ${notFound}`);
   if (notFoundLojas.length > 0) {
-    console.log(
-      `   Lojas sem match: ${notFoundLojas.join(', ')}`,
-    );
+    console.log(`   Lojas sem match: ${notFoundLojas.join(', ')}`);
   }
 
   // 4. Show summary

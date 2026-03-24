@@ -27,9 +27,16 @@ export class CreateLocationDto {
 
   @IsString()
   @IsOptional()
+  state?: string;
+
+  @IsString()
+  @IsOptional()
+  city?: string;
+
+  @IsString()
+  @IsOptional()
   image?: string;
 
   @IsOptional()
   stats?: any;
 }
-

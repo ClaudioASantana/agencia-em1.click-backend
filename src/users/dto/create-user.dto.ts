@@ -25,7 +25,11 @@ export class CreateUserDto {
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 'STORE_OWNER', required: false, enum: ['ADMIN', 'STORE_OWNER'] })
+  @ApiProperty({
+    example: 'STORE_OWNER',
+    required: false,
+    enum: ['ADMIN', 'STORE_OWNER'],
+  })
   @IsOptional()
   @IsIn(['ADMIN', 'STORE_OWNER'])
   role?: string;

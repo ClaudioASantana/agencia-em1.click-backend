@@ -28,7 +28,7 @@ export class UsersService {
   }
 
   async create(data: CreateUserDto): Promise<User> {
-    const password = data.password as string;
+    const password = data.password;
     const hashedPassword = await bcrypt.hash(password, 10);
     const { establishmentIds, storeName, ...userData } = data;
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -57,11 +57,20 @@ export class UsersService {
         '-' +
         Math.floor(Math.random() * 10000);
 
+      let locId = 1;
+      let segId = 1;
+
+      const firstLocation = await this.prisma.location.findFirst();
+      if (firstLocation) locId = firstLocation.id;
+
+      const firstSegment = await this.prisma.segment.findFirst();
+      if (firstSegment) segId = firstSegment.id;
+
       const newStore = {
         name: storeName,
         slug: slug,
-        segmentId: 1,
-        locationId: 1,
+        segmentId: segId,
+        locationId: locId,
       };
 
       if (createData.establishments && 'connect' in createData.establishments) {

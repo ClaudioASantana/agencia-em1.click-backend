@@ -30,7 +30,7 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto) {
     const userDto = {
       ...registerDto,
-      role: 'STORE_OWNER',
+      role: registerDto.role || 'STORE_OWNER',
     };
     return this.usersService.create(userDto);
   }

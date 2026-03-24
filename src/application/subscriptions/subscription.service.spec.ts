@@ -3,7 +3,12 @@ import { DEFAULT_FREE_PLAN } from '../plans/plan.constants';
 
 const makePrisma = (overrides: Record<string, any> = {}) =>
   ({
-    subscription: { findUnique: jest.fn(), upsert: jest.fn(), updateMany: jest.fn(), findMany: jest.fn() },
+    subscription: {
+      findUnique: jest.fn(),
+      upsert: jest.fn(),
+      updateMany: jest.fn(),
+      findMany: jest.fn(),
+    },
     establishment: { findMany: jest.fn(), count: jest.fn() },
     publication: { count: jest.fn() },
     offer: { count: jest.fn() },
@@ -35,7 +40,10 @@ describe('SubscriptionService', () => {
 
     it('retorna plano grátis quando assinatura está cancelada', async () => {
       const prisma = makePrisma();
-      prisma.subscription.findUnique.mockResolvedValue({ status: 'CANCELLED', plan: STARTER_PLAN });
+      prisma.subscription.findUnique.mockResolvedValue({
+        status: 'CANCELLED',
+        plan: STARTER_PLAN,
+      });
       const svc = new SubscriptionService(prisma);
 
       const plan = await svc.getPlanByUserId(1);
@@ -74,7 +82,11 @@ describe('SubscriptionService', () => {
   describe('checkLimit — publication', () => {
     it('permite criação quando abaixo do limite', async () => {
       const prisma = makePrisma();
-      prisma.subscription.findUnique.mockResolvedValue({ status: 'ACTIVE', expiresAt: null, plan: STARTER_PLAN });
+      prisma.subscription.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        expiresAt: null,
+        plan: STARTER_PLAN,
+      });
       prisma.establishment.findMany.mockResolvedValue([{ id: 10 }, { id: 11 }]);
       prisma.publication.count.mockResolvedValue(3); // abaixo do limite de 5
 
@@ -88,7 +100,11 @@ describe('SubscriptionService', () => {
 
     it('bloqueia quando no limite', async () => {
       const prisma = makePrisma();
-      prisma.subscription.findUnique.mockResolvedValue({ status: 'ACTIVE', expiresAt: null, plan: STARTER_PLAN });
+      prisma.subscription.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        expiresAt: null,
+        plan: STARTER_PLAN,
+      });
       prisma.establishment.findMany.mockResolvedValue([{ id: 10 }]);
       prisma.publication.count.mockResolvedValue(5); // igual ao limite
 
@@ -116,7 +132,11 @@ describe('SubscriptionService', () => {
   describe('checkLimit — establishment', () => {
     it('permite quando abaixo do limite de estabelecimentos', async () => {
       const prisma = makePrisma();
-      prisma.subscription.findUnique.mockResolvedValue({ status: 'ACTIVE', expiresAt: null, plan: STARTER_PLAN });
+      prisma.subscription.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        expiresAt: null,
+        plan: STARTER_PLAN,
+      });
       prisma.establishment.count.mockResolvedValue(2); // abaixo de 3
 
       const svc = new SubscriptionService(prisma);
@@ -128,7 +148,11 @@ describe('SubscriptionService', () => {
 
     it('bloqueia quando atingiu o limite de estabelecimentos', async () => {
       const prisma = makePrisma();
-      prisma.subscription.findUnique.mockResolvedValue({ status: 'ACTIVE', expiresAt: null, plan: STARTER_PLAN });
+      prisma.subscription.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        expiresAt: null,
+        plan: STARTER_PLAN,
+      });
       prisma.establishment.count.mockResolvedValue(3); // igual ao limite
 
       const svc = new SubscriptionService(prisma);

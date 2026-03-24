@@ -9,6 +9,7 @@ import {
   Req,
   ForbiddenException,
   Post,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -48,7 +49,12 @@ export class EstablishmentController {
     const isFollowed = followed === 'true';
     const isAgencySelected =
       isAgency === 'true' ? true : isAgency === 'false' ? false : undefined;
-    const userId = userIdParam ? Number(userIdParam) : req?.user?.userId;
+    // Only use JWT userId for 'followed' filter; explicit userIdParam for owner filter
+    const userId = userIdParam
+      ? Number(userIdParam)
+      : isFollowed
+        ? req?.user?.userId
+        : undefined;
     return this.establishmentService.findAll(
       location,
       segment,
@@ -143,12 +149,93 @@ export class EstablishmentController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get metrics for the logged establishment' })
   async getMyStats(@Req() req: any) {
-    const estId = req.user.establishmentId;
+    let estId = req.user.establishmentId;
+    if (!estId) {
+      estId = await this.establishmentService.getMyFirstEstablishmentId(
+        req.user.sub,
+      );
+    }
     if (!estId) {
       throw new ForbiddenException(
         'User is not associated with an establishment',
       );
     }
     return this.establishmentService.getStats(estId);
+  }
+
+  @Get('me/followers')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List consumers who favorited my establishment' })
+  async getMyFollowers(@Req() req: any) {
+    let estId = req.user.establishmentId;
+    if (!estId) {
+      estId = await this.establishmentService.getMyFirstEstablishmentId(
+        req.user.sub,
+      );
+    }
+    if (!estId) {
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
+    }
+    return this.establishmentService.getFollowers(estId);
+  }
+
+  @Get('me/followers/stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get followers statistics for my establishment' })
+  async getMyFollowersStats(@Req() req: any) {
+    let estId = req.user.establishmentId;
+    if (!estId) {
+      estId = await this.establishmentService.getMyFirstEstablishmentId(
+        req.user.sub,
+      );
+    }
+    if (!estId) {
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
+    }
+    return this.establishmentService.getFollowersStats(estId);
+  }
+
+  @Get('me/followers/campaigns')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List past campaigns sent to followers' })
+  async getMyCampaigns(@Req() req: any) {
+    const estId = req.user.establishmentId;
+    if (!estId) {
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
+    }
+    return this.establishmentService.getCampaigns(estId);
+  }
+
+  @Post('me/followers/campaigns')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Send a new campaign to followers' })
+  async sendCampaign(
+    @Req() req: any,
+    @Body() body: { subject: string; content: string },
+  ) {
+    const estId = req.user.establishmentId;
+    if (!estId) {
+      throw new ForbiddenException(
+        'User is not associated with an establishment',
+      );
+    }
+    if (!body.subject || !body.content) {
+      throw new BadRequestException('Subject and content are required');
+    }
+    return this.establishmentService.sendCampaign(
+      estId,
+      body.subject,
+      body.content,
+    );
   }
 }

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
@@ -160,7 +164,8 @@ export class OfferService {
         where: { id: offer.establishmentId, users: { some: { id: userId } } },
         select: { id: true },
       });
-      if (!owns) throw new ForbiddenException('Sem permissão para editar esta oferta');
+      if (!owns)
+        throw new ForbiddenException('Sem permissão para editar esta oferta');
     }
 
     return this.prisma.offer.update({ where: { id }, data });
@@ -178,7 +183,8 @@ export class OfferService {
         where: { id: offer.establishmentId, users: { some: { id: userId } } },
         select: { id: true },
       });
-      if (!owns) throw new ForbiddenException('Sem permissão para excluir esta oferta');
+      if (!owns)
+        throw new ForbiddenException('Sem permissão para excluir esta oferta');
     }
 
     return this.prisma.offer.delete({ where: { id } });

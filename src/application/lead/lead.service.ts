@@ -18,7 +18,9 @@ export class LeadService {
 
     if (existing) {
       if (existing.active) {
-        throw new ConflictException('Você já está inscrito para receber ofertas desta loja.');
+        throw new ConflictException(
+          'Você já está inscrito para receber ofertas desta loja.',
+        );
       }
       // Reativar lead que havia cancelado
       return this.prisma.lead.update({

@@ -46,16 +46,6 @@ export class UpdateEstablishmentDto {
   @IsString()
   address?: string;
 
-  @ApiProperty({ description: 'State (UF)', required: false })
-  @IsOptional()
-  @IsString()
-  state?: string;
-
-  @ApiProperty({ description: 'City name', required: false })
-  @IsOptional()
-  @IsString()
-  city?: string;
-
   @ApiProperty({ description: 'Operating hours text', required: false })
   @IsOptional()
   @IsString()

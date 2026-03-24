@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateEstablishmentDto } from './dto/create-establishment.dto';
+import { MailService } from '../../infrastructure/mail/mail.service';
 
 @Injectable()
 export class EstablishmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   private filterOffers(offers: any[]) {
     const now = new Date();
@@ -85,7 +89,6 @@ export class EstablishmentService {
         phone: true,
         whatsapp: true,
         address: true,
-        city: true,
         hours: true,
         specialties: true,
         instagram: true,
@@ -169,7 +172,13 @@ export class EstablishmentService {
           include: { publication: true },
         },
         publications: {
-          where: { status: 'ACTIVE' },
+          where: {
+            status: { in: ['ACTIVE', 'PADRAO'] },
+            AND: [
+              { OR: [{ startDate: null }, { startDate: { lte: new Date() } }] },
+              { OR: [{ endDate: null }, { endDate: { gte: new Date() } }] },
+            ],
+          },
           orderBy: { createdAt: 'desc' },
         },
       },
@@ -278,8 +287,23 @@ export class EstablishmentService {
     const { specialties, locationId, segmentId, ...otherData } = data;
 
     // Defaults if not provided (for safety)
-    const finalLocationId = locationId || 1; // Fallback to first location
-    const finalSegmentId = segmentId || 1; // Fallback to first segment
+    let finalLocationId = locationId;
+    if (!finalLocationId) {
+      const firstLocation = await this.prisma.location.findFirst();
+      if (!firstLocation)
+        throw new NotFoundException(
+          'Nenhuma localização cadastrada no sistema.',
+        );
+      finalLocationId = firstLocation.id;
+    }
+
+    let finalSegmentId = segmentId;
+    if (!finalSegmentId) {
+      const firstSegment = await this.prisma.segment.findFirst();
+      if (!firstSegment)
+        throw new NotFoundException('Nenhum segmento cadastrado no sistema.');
+      finalSegmentId = firstSegment.id;
+    }
 
     // Better: Allow creating with minimal data, e.g. Name.
     // We need unique slug.
@@ -377,5 +401,147 @@ export class EstablishmentService {
         values: [12, 19, 15, 8, 22, 30, 25], // Hardcoded for now but ready for API
       },
     };
+  }
+
+  async getMyFirstEstablishmentId(userId: number): Promise<number | null> {
+    const units = await this.findByUserId(userId);
+    return units.length > 0 ? units[0].id : null;
+  }
+
+  async getFollowers(establishmentId: number) {
+    const follows = await this.prisma.follow.findMany({
+      where: { establishmentId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return follows.map((f: any) => ({
+      id: f.id,
+      followedAt: f.createdAt,
+      user: {
+        id: f.user?.id,
+        name: f.user?.name || 'Consumidor',
+        email: f.user?.email,
+      },
+    }));
+  }
+
+  async getFollowersStats(establishmentId: number) {
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const [totalFollowers, newThisWeek, newThisMonth] = await Promise.all([
+      this.prisma.follow.count({ where: { establishmentId } }),
+      this.prisma.follow.count({
+        where: { establishmentId, createdAt: { gte: sevenDaysAgo } },
+      }),
+      this.prisma.follow.count({
+        where: { establishmentId, createdAt: { gte: thirtyDaysAgo } },
+      }),
+    ]);
+
+    const followsForChart = await this.prisma.follow.findMany({
+      where: {
+        establishmentId,
+        createdAt: { gte: thirtyDaysAgo },
+      },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const growthMap = new Map<string, number>();
+    for (const f of followsForChart) {
+      const dateKey = f.createdAt.toISOString().split('T')[0];
+      growthMap.set(dateKey, (growthMap.get(dateKey) || 0) + 1);
+    }
+
+    const growthData: { date: string; newCount: number; totalCount: number }[] =
+      [];
+    let cumulative = totalFollowers - newThisMonth; // Total before the 30-day window
+
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateKey = d.toISOString().split('T')[0];
+      const dailyCount = growthMap.get(dateKey) || 0;
+
+      cumulative += dailyCount;
+
+      growthData.push({
+        date: dateKey,
+        newCount: dailyCount,
+        totalCount: cumulative,
+      });
+    }
+
+    return {
+      totalFollowers,
+      newThisWeek,
+      newThisMonth,
+      growthData,
+    };
+  }
+
+  async getCampaigns(establishmentId: number) {
+    return this.prisma.campaign.findMany({
+      where: { establishmentId },
+      orderBy: { sentAt: 'desc' },
+    });
+  }
+
+  async sendCampaign(
+    establishmentId: number,
+    subject: string,
+    content: string,
+  ) {
+    const establishment = await this.prisma.establishment.findUnique({
+      where: { id: establishmentId },
+      include: {
+        follows: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!establishment) {
+      throw new NotFoundException('Establishment not found');
+    }
+
+    const followersEmails = establishment.follows
+      .filter((f: any) => f.user?.email && !f.user.notificationOptOut)
+      .map((f: any) => f.user.email);
+
+    if (followersEmails.length > 0) {
+      await this.mailService.sendCampaignEmails(
+        followersEmails,
+        subject,
+        content,
+        { name: establishment.name, slug: establishment.slug },
+      );
+    }
+
+    const campaign = await this.prisma.campaign.create({
+      data: {
+        subject,
+        content,
+        establishmentId,
+      },
+    });
+
+    return campaign;
   }
 }

@@ -81,4 +81,40 @@ export class MailService {
       `,
     });
   }
+
+  async sendCampaignEmails(
+    emails: string[],
+    subject: string,
+    content: string,
+    establishment: { name: string; slug: string },
+  ) {
+    const vitrineUrl =
+      this.configService.get<string>('VITRINE_URL') ??
+      'https://vitrine.amorimdev.cloud';
+    const storeUrl = `${vitrineUrl}/catalog?agency=${establishment.slug}`;
+
+    await this.mailerService.sendMail({
+      to: emails,
+      subject: `${establishment.name}: ${subject}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+          <h2 style="color: #2563EB;">Mensagem de ${establishment.name}</h2>
+          <div style="color: #374151; font-size: 16px; margin-top: 20px; white-space: pre-wrap;">
+            ${content}
+          </div>
+          <p style="color: #6B7280; margin-top: 30px;">
+            Você está recebendo este e-mail porque segue esta loja na Vitrine Digital.
+          </p>
+          <a href="${storeUrl}"
+            style="display:inline-block;margin-top:16px;padding:12px 24px;background:#2563EB;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">
+            Acessar a Loja
+          </a>
+          <hr style="margin-top:32px;border:none;border-top:1px solid #E5E7EB;" />
+          <p style="color:#9CA3AF;font-size:12px;">
+            Para não receber mais mensagens, acesse sua conta na vitrine e desative as notificações.
+          </p>
+        </div>
+      `,
+    });
+  }
 }

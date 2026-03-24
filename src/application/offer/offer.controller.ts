@@ -64,7 +64,11 @@ export class OfferController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update an offer' })
-  update(@Param('id') id: string, @Req() req: any, @Body() updateOfferDto: UpdateOfferDto) {
+  update(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() updateOfferDto: UpdateOfferDto,
+  ) {
     const userId = req.user?.role === 'ADMIN' ? undefined : req.user?.userId;
     return this.offerService.update(+id, updateOfferDto, userId);
   }

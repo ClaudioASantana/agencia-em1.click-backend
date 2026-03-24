@@ -45,15 +45,26 @@ describe('PlanGuard', () => {
 
   it('retorna true quando o limite ainda não foi atingido', async () => {
     reflector.get.mockReturnValue('publication');
-    subscriptionService.checkLimit.mockResolvedValue({ allowed: true, limit: 5, current: 2 });
+    subscriptionService.checkLimit.mockResolvedValue({
+      allowed: true,
+      limit: 5,
+      current: 2,
+    });
     const ctx = makeMockContext({ userId: 42 });
     await expect(guard.canActivate(ctx)).resolves.toBe(true);
-    expect(subscriptionService.checkLimit).toHaveBeenCalledWith(42, 'publication');
+    expect(subscriptionService.checkLimit).toHaveBeenCalledWith(
+      42,
+      'publication',
+    );
   });
 
   it('lança ForbiddenException com PLAN_LIMIT_REACHED quando limite atingido', async () => {
     reflector.get.mockReturnValue('publication');
-    subscriptionService.checkLimit.mockResolvedValue({ allowed: false, limit: 1, current: 1 });
+    subscriptionService.checkLimit.mockResolvedValue({
+      allowed: false,
+      limit: 1,
+      current: 1,
+    });
     const ctx = makeMockContext({ userId: 7 });
 
     await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
@@ -70,7 +81,11 @@ describe('PlanGuard', () => {
 
   it('verifica limite para resource "offer"', async () => {
     reflector.get.mockReturnValue('offer');
-    subscriptionService.checkLimit.mockResolvedValue({ allowed: true, limit: 5, current: 3 });
+    subscriptionService.checkLimit.mockResolvedValue({
+      allowed: true,
+      limit: 5,
+      current: 3,
+    });
     const ctx = makeMockContext({ userId: 10 });
     await expect(guard.canActivate(ctx)).resolves.toBe(true);
     expect(subscriptionService.checkLimit).toHaveBeenCalledWith(10, 'offer');
@@ -78,7 +93,11 @@ describe('PlanGuard', () => {
 
   it('verifica limite para resource "establishment"', async () => {
     reflector.get.mockReturnValue('establishment');
-    subscriptionService.checkLimit.mockResolvedValue({ allowed: false, limit: 1, current: 1 });
+    subscriptionService.checkLimit.mockResolvedValue({
+      allowed: false,
+      limit: 1,
+      current: 1,
+    });
     const ctx = makeMockContext({ userId: 5 });
     await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
   });

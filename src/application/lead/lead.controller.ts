@@ -22,7 +22,9 @@ export class LeadController {
   constructor(private readonly leadService: LeadService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Inscrever para receber ofertas via WhatsApp (público)' })
+  @ApiOperation({
+    summary: 'Inscrever para receber ofertas via WhatsApp (público)',
+  })
   async create(@Body() dto: CreateLeadDto) {
     return this.leadService.create(dto);
   }
@@ -40,7 +42,9 @@ export class LeadController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Listar leads de um estabelecimento (lojista/admin)' })
+  @ApiOperation({
+    summary: 'Listar leads de um estabelecimento (lojista/admin)',
+  })
   async getByEstablishment(
     @Query('establishmentId', ParseIntPipe) establishmentId: number,
     @Req() req: any,

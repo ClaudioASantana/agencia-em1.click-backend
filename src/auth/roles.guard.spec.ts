@@ -2,7 +2,11 @@ import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
 
-const makeMockContext = (user: any, handlerRoles?: string[], classRoles?: string[]): ExecutionContext =>
+const makeMockContext = (
+  user: any,
+  handlerRoles?: string[],
+  classRoles?: string[],
+): ExecutionContext =>
   ({
     getHandler: () => ({ handlerRoles }),
     getClass: () => ({ classRoles }),
@@ -57,7 +61,9 @@ describe('RolesGuard', () => {
     const ctx = makeMockContext({ userId: 5, role: 'STORE_OWNER' });
 
     expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
-    expect(() => guard.canActivate(ctx)).toThrow('Acesso restrito a administradores');
+    expect(() => guard.canActivate(ctx)).toThrow(
+      'Acesso restrito a administradores',
+    );
   });
 
   it('retorna true quando roles aceita múltiplos valores e o usuário tem um deles', () => {

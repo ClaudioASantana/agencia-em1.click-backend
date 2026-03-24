@@ -20,7 +20,9 @@ export class ShareTokenController {
   constructor(private readonly shareTokenService: ShareTokenService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Gerar token de compartilhamento para uma loja (público)' })
+  @ApiOperation({
+    summary: 'Gerar token de compartilhamento para uma loja (público)',
+  })
   async create(@Body() dto: CreateShareTokenDto) {
     return this.shareTokenService.create(dto.establishmentId);
   }
@@ -43,10 +45,7 @@ export class ShareTokenController {
     const estId = +establishmentId;
     const userEstablishments: number[] = req.user.establishmentIds ?? [];
 
-    if (
-      req.user.role !== 'ADMIN' &&
-      !userEstablishments.includes(estId)
-    ) {
+    if (req.user.role !== 'ADMIN' && !userEstablishments.includes(estId)) {
       throw new ForbiddenException('Acesso negado');
     }
 

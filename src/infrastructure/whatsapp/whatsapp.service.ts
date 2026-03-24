@@ -43,7 +43,10 @@ export class WhatsappService {
 
   // ─── Twilio ──────────────────────────────────────────────────────────────
 
-  private async sendViaTwilio(phone: string, message: string): Promise<'sent' | 'pending'> {
+  private async sendViaTwilio(
+    phone: string,
+    message: string,
+  ): Promise<'sent' | 'pending'> {
     try {
       const accountSid = this.config.getOrThrow('TWILIO_ACCOUNT_SID');
       const authToken = this.config.getOrThrow('TWILIO_AUTH_TOKEN');
@@ -66,7 +69,9 @@ export class WhatsappService {
       );
 
       if (!response.ok) {
-        this.logger.error(`[Twilio] Falha ao enviar para ${phone}: ${response.statusText}`);
+        this.logger.error(
+          `[Twilio] Falha ao enviar para ${phone}: ${response.statusText}`,
+        );
         return 'pending';
       }
 
@@ -80,26 +85,34 @@ export class WhatsappService {
 
   // ─── Zenvia ──────────────────────────────────────────────────────────────
 
-  private async sendViaZenvia(phone: string, message: string): Promise<'sent' | 'pending'> {
+  private async sendViaZenvia(
+    phone: string,
+    message: string,
+  ): Promise<'sent' | 'pending'> {
     try {
       const token = this.config.getOrThrow('ZENVIA_TOKEN');
       const from = this.config.getOrThrow('ZENVIA_FROM');
 
-      const response = await fetch('https://api.zenvia.com/v2/channels/whatsapp/messages', {
-        method: 'POST',
-        headers: {
-          'X-API-Token': token,
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'https://api.zenvia.com/v2/channels/whatsapp/messages',
+        {
+          method: 'POST',
+          headers: {
+            'X-API-Token': token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from,
+            to: phone.replace('+', ''),
+            contents: [{ type: 'text', text: message }],
+          }),
         },
-        body: JSON.stringify({
-          from,
-          to: phone.replace('+', ''),
-          contents: [{ type: 'text', text: message }],
-        }),
-      });
+      );
 
       if (!response.ok) {
-        this.logger.error(`[Zenvia] Falha ao enviar para ${phone}: ${response.statusText}`);
+        this.logger.error(
+          `[Zenvia] Falha ao enviar para ${phone}: ${response.statusText}`,
+        );
         return 'pending';
       }
 

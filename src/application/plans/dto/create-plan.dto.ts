@@ -1,4 +1,11 @@
-import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePlanDto {

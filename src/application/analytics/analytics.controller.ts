@@ -9,7 +9,12 @@ import {
   ForbiddenException,
   HttpCode,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { AnalyticsService } from './analytics.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -45,7 +50,8 @@ export class AnalyticsController {
       ? +establishmentIdParam
       : req.user.establishmentId;
 
-    if (!estId) throw new ForbiddenException('Nenhum estabelecimento associado');
+    if (!estId)
+      throw new ForbiddenException('Nenhum estabelecimento associado');
 
     return this.analyticsService.getDashboard(estId, period);
   }

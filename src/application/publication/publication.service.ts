@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
@@ -87,8 +91,20 @@ export class PublicationService {
       where: {
         establishmentId,
         status: 'ACTIVE',
-        startDate: { lte: now },
-        endDate: { gte: now },
+        AND: [
+          {
+            OR: [
+              { startDate: null },
+              { startDate: { lte: now } },
+            ],
+          },
+          {
+            OR: [
+              { endDate: null },
+              { endDate: { gte: now } },
+            ],
+          },
+        ],
       },
       include: { offers: true },
     });
@@ -103,7 +119,11 @@ export class PublicationService {
     return standardPub || null;
   }
 
-  async update(id: number, updatePublicationDto: UpdatePublicationDto, userId?: number) {
+  async update(
+    id: number,
+    updatePublicationDto: UpdatePublicationDto,
+    userId?: number,
+  ) {
     const { offerIds, status, ...data } = updatePublicationDto;
 
     // Buscar status anterior para detectar transição para ACTIVE
@@ -117,10 +137,16 @@ export class PublicationService {
     // Verificar propriedade quando userId fornecido (não-admin)
     if (userId) {
       const owns = await this.prisma.establishment.findFirst({
-        where: { id: existing.establishmentId, users: { some: { id: userId } } },
+        where: {
+          id: existing.establishmentId,
+          users: { some: { id: userId } },
+        },
         select: { id: true },
       });
-      if (!owns) throw new ForbiddenException('Sem permissão para editar esta publicação');
+      if (!owns)
+        throw new ForbiddenException(
+          'Sem permissão para editar esta publicação',
+        );
     }
 
     if (status === 'PADRAO' && existing) {
@@ -162,10 +188,16 @@ export class PublicationService {
       if (!existing) throw new NotFoundException('Publication not found');
 
       const owns = await this.prisma.establishment.findFirst({
-        where: { id: existing.establishmentId, users: { some: { id: userId } } },
+        where: {
+          id: existing.establishmentId,
+          users: { some: { id: userId } },
+        },
         select: { id: true },
       });
-      if (!owns) throw new ForbiddenException('Sem permissão para excluir esta publicação');
+      if (!owns)
+        throw new ForbiddenException(
+          'Sem permissão para excluir esta publicação',
+        );
     }
     return this.prisma.publication.delete({ where: { id } });
   }
@@ -232,7 +264,8 @@ export class PublicationService {
         if (leads.length === 0) return;
 
         const vitrineUrl =
-          this.config.get<string>('VITRINE_URL') ?? 'https://vitrine.amorimdev.cloud';
+          this.config.get<string>('VITRINE_URL') ??
+          'https://vitrine.amorimdev.cloud';
         const storeUrl = `${vitrineUrl}/loja/${pub.establishment.slug}`;
 
         const message =
@@ -246,7 +279,11 @@ export class PublicationService {
 
           // Registra a notificação para evitar reenvios
           await this.prisma.leadNotification.create({
-            data: { leadId: lead.id, publicationId: pub.id, status: status.toUpperCase() },
+            data: {
+              leadId: lead.id,
+              publicationId: pub.id,
+              status: status.toUpperCase(),
+            },
           });
         }
 

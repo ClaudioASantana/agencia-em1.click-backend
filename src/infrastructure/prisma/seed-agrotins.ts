@@ -167,8 +167,6 @@ async function main() {
         slug: exp.slug,
         description: exp.description,
         address: 'Parque Agrotecnológico Mauro Medanha',
-        city: 'Palmas',
-        state: 'TO',
         locationId: location.id,
         segmentId: exp.segmentId,
         estandeSustentavel: exp.estandeSustentavel,
