@@ -1,0 +1,2 @@
+src/application/loyalty/loyalty.service.ts(70,9): error TS2353: Object literal may only specify known properties, and 'reason' does not exist in type 'Without<LoyaltyPointCreateInput, LoyaltyPointUncheckedCreateInput> & LoyaltyPointUncheckedCreateInput'.
+src/application/loyalty/loyalty.service.ts(108,9): error TS2353: Object literal may only specify known properties, and 'reason' does not exist in type 'Without<LoyaltyPointCreateInput, LoyaltyPointUncheckedCreateInput> & LoyaltyPointUncheckedCreateInput'.

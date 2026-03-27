@@ -93,16 +93,10 @@ export class PublicationService {
         status: 'ACTIVE',
         AND: [
           {
-            OR: [
-              { startDate: null },
-              { startDate: { lte: now } },
-            ],
+            OR: [{ startDate: null }, { startDate: { lte: now } }],
           },
           {
-            OR: [
-              { endDate: null },
-              { endDate: { gte: now } },
-            ],
+            OR: [{ endDate: null }, { endDate: { gte: now } }],
           },
         ],
       },

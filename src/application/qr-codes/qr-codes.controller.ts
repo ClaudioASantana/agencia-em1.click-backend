@@ -122,6 +122,28 @@ export class QrCodesController {
     return this.service.findImpulsesByEstablishment(establishmentId);
   }
 
+  // ── Lojista: Encartes ──────────────────────────────────────────────────────
+
+  @Post('my-encartes')
+  @ApiOperation({ summary: 'Gerar encarte de QR (Lojista)' })
+  generateMyEncarte(@Body() dto: any) {
+    return this.service.generateEncarte(dto);
+  }
+
+  @Get('my-encartes/:establishmentId')
+  @ApiOperation({ summary: 'Listar encartes do estabelecimento (Lojista)' })
+  findMyEncartes(
+    @Param('establishmentId', ParseIntPipe) establishmentId: number,
+  ) {
+    return this.service.findEncartesByEstablishment(establishmentId);
+  }
+
+  @Delete('my-encartes/:id')
+  @ApiOperation({ summary: 'Remover encarte do lojista' })
+  deleteMyEncarte(@Param('id', ParseIntPipe) id: number) {
+    return this.service.deleteEncarte(id);
+  }
+
   // ── Encartes (Admin) ───────────────────────────────────────────────────────
 
   @Post('encartes')

@@ -25,6 +25,8 @@ import { LeadModule } from './application/lead/lead.module';
 import { QrCodesModule } from './application/qr-codes/qr-codes.module';
 import { SegmentsModule } from './application/segments/segments.module';
 import { LocationsModule } from './application/locations/locations.module';
+import { SweepstakesModule } from './application/sweepstakes/sweepstakes.module';
+import { LoyaltyModule } from './application/loyalty/loyalty.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { LocationsModule } from './application/locations/locations.module';
     QrCodesModule,
     SegmentsModule,
     LocationsModule,
+    SweepstakesModule,
+    LoyaltyModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

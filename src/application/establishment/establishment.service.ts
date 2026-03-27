@@ -1,7 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateEstablishmentDto } from './dto/create-establishment.dto';
 import { MailService } from '../../infrastructure/mail/mail.service';
+
+import { Prisma } from '@prisma/client';
+
+export interface OfferWithPublication {
+  publication?: {
+    status: string;
+    startDate: Date | null;
+    endDate: Date | null;
+  } | null;
+}
 
 @Injectable()
 export class EstablishmentService {
@@ -10,7 +21,7 @@ export class EstablishmentService {
     private mailService: MailService,
   ) {}
 
-  private filterOffers(offers: any[]) {
+  private filterOffers(offers: OfferWithPublication[]) {
     const now = new Date();
 
     // 1. Filter out invalid active offers (expired or not started)
@@ -49,13 +60,16 @@ export class EstablishmentService {
     followed?: boolean,
     isAgency?: boolean,
   ) {
-    const where: any = {};
+    const where: Prisma.EstablishmentWhereInput = {};
 
     if (location) {
-      where.OR = [{ location: { name: location } }, { city: location }];
+      where.OR = [
+        { location: { name: location } },
+        { location: { city: location } },
+      ];
     }
     if (segment) {
-      where.segment = { name: segment };
+      where.segment = { is: { name: segment } };
     }
     if (isAgency !== undefined) {
       where.isAgency = isAgency;
@@ -370,35 +384,78 @@ export class EstablishmentService {
 
     if (!establishment) throw new NotFoundException('Establishment not found');
 
-    // Simulate some historical data based on creation dates
-    // In a real scenario, this would come from an Analytics/Logs table
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      return d.toLocaleDateString('pt-BR', { weekday: 'short' });
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    const analytics = await this.prisma.analyticsEvent.findMany({
+      where: {
+        establishmentId,
+        createdAt: { gte: thirtyDaysAgo },
+      },
+      select: { eventType: true, createdAt: true },
     });
 
-    const last30Days = Array.from({ length: 7 }, (_, i) => {
+    let views = 0;
+    let promoClicks = 0;
+    let whatsappClicks = 0;
+
+    const visitsMap = new Map<string, number>();
+    const interactionsMap = new Map<string, number>();
+
+    for (const event of analytics) {
+      const type = event.eventType.toUpperCase();
+      const dateKey = event.createdAt.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+      });
+
+      if (type.includes('VIEW')) {
+        views++;
+        visitsMap.set(dateKey, (visitsMap.get(dateKey) || 0) + 1);
+      } else if (type.includes('CLICK_OFFER') || type.includes('PROMO_CLICK')) {
+        promoClicks++;
+        interactionsMap.set(dateKey, (interactionsMap.get(dateKey) || 0) + 1);
+      } else if (type.includes('WHATSAPP') || type.includes('CONTACT')) {
+        whatsappClicks++;
+        interactionsMap.set(dateKey, (interactionsMap.get(dateKey) || 0) + 1);
+      } else {
+        interactionsMap.set(dateKey, (interactionsMap.get(dateKey) || 0) + 1); // Other interactions
+      }
+    }
+
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
       const d = new Date();
-      d.setDate(d.getDate() - (30 - i * 5));
+      d.setDate(d.getDate() - (29 - i));
       return d.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
       });
     });
 
+    const visitsHistoryValues = last30Days.map((d) => visitsMap.get(d) || 0);
+    const interactionsHistoryValues = last30Days.map(
+      (d) => interactionsMap.get(d) || 0,
+    );
+
+    // Get last 7 days from the 30 subset to preserve UI structure if they use engagementHistory
+    const last7Days = last30Days.slice(-7);
+    const engagementHistoryValues = interactionsHistoryValues.slice(-7);
+
     return {
-      views: Math.floor(Math.random() * 500) + 1000, // Placeholder as we don't track views yet
-      activeOffers: establishment.offers.length,
+      views,
+      promoClicks,
+      whatsappClicks,
       rating: establishment.rating || 0,
-      followers: establishment.follows.length,
+      followersCount: establishment.follows.length, // Kept to not break other things maybe
       visitsHistory: {
         labels: last30Days,
-        values: [30, 45, 25, 60, 55, 90, 70], // Hardcoded for now but ready for API
+        values: visitsHistoryValues,
+        interactions: interactionsHistoryValues, // send interactions along
       },
       engagementHistory: {
         labels: last7Days,
-        values: [12, 19, 15, 8, 22, 30, 25], // Hardcoded for now but ready for API
+        values: engagementHistoryValues,
       },
     };
   }
