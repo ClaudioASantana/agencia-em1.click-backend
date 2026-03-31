@@ -21,8 +21,8 @@ export class SweepstakesService {
       data: {
         title: createSweepstakeDto.title,
         description: createSweepstakeDto.description,
-        startDate: new Date(createSweepstakeDto.startDate),
-        endDate: new Date(createSweepstakeDto.endDate),
+        startDate: createSweepstakeDto.startDate ? new Date(createSweepstakeDto.startDate) : undefined,
+        endDate: createSweepstakeDto.endDate ? new Date(createSweepstakeDto.endDate) : undefined,
         active: true,
         type: createSweepstakeDto.type || 'DEFAULT',
         prizeQuantity: createSweepstakeDto.prizeQuantity || 1,
