@@ -21,6 +21,8 @@ async function bootstrap() {
       'https://vitrine.em1.click',
       'https://idreal.com.br',
       'https://qrcode.amorimdev.cloud',
+      'https://xqbx.co',
+      'http://xqbx.co',
       /http:\/\/localhost:\d+$/,
       /https:\/\/localhost:\d+$/,
     ],
