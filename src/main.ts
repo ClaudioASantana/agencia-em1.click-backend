@@ -19,7 +19,6 @@ async function bootstrap() {
       'http://idreau.com.br',
       'https://em1.click',
       'https://vitrine.em1.click',
-      'https://idreal.com.br',
       'https://qrcode.amorimdev.cloud',
       'https://xqbx.co',
       'http://xqbx.co',
