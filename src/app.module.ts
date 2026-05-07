@@ -27,6 +27,8 @@ import { SegmentsModule } from './application/segments/segments.module';
 import { LocationsModule } from './application/locations/locations.module';
 import { SweepstakesModule } from './application/sweepstakes/sweepstakes.module';
 import { LoyaltyModule } from './application/loyalty/loyalty.module';
+import { OllamaModule } from './infrastructure/integrations/ollama.module';
+import { OllamaController } from './infrastructure/integrations/ollama.controller';
 
 @Module({
   imports: [
@@ -57,8 +59,9 @@ import { LoyaltyModule } from './application/loyalty/loyalty.module';
     LocationsModule,
     SweepstakesModule,
     LoyaltyModule,
+    OllamaModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, OllamaController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
