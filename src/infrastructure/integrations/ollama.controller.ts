@@ -19,7 +19,7 @@ import {
   Res,
   BadRequestException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { OllamaService } from './ollama.service';
 
@@ -194,7 +194,7 @@ export class OllamaController {
       model,
     }: {
       message: string;
-      conversationHistory?: Array<{ role: string; content: string }>;
+      conversationHistory?: Array<{ role: 'user' | 'system' | 'assistant'; content: string }>;
       temperature?: number;
       model?: string;
     },
